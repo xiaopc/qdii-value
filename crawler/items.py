@@ -17,6 +17,7 @@ class StockStatus(scrapy.Item):
     sname = scrapy.Field()
     weight = scrapy.Field()
 
+    sname_i = scrapy.Field()
     current = scrapy.Field()
     delta = scrapy.Field()
     extent = scrapy.Field()

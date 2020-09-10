@@ -25,8 +25,10 @@ Python 环境
 ```bash
 # 安装依赖
 pip install -r requirements.txt
-# 启动脚本，参数 id=基金代码，-o 输出 csv 文件
-scrapy crawl funds -a id=006105 -o 006105.csv
+# 启动脚本，
+# -a 参数: id=基金代码，exchange=交易所（可选），id_len=股票代码长度（仅对数字型代码适用，可选）
+# -o 输出 csv 文件
+scrapy crawl funds -a id=007280 -a exchange="东京" -o 006105.csv
 ```
 
 先是会在控制台输出持仓表：
@@ -49,7 +51,7 @@ scrapy crawl funds -a id=006105 -o 006105.csv
 
   - 目前找到匹配度最高的是 Bloomberg，但是国内打不开
 
-  - 数字型的代码可能会匹配到其他市场（现在就是简单取的搜索框第一个匹配的股票）
+  - [x] 数字型的代码可能会匹配到其他市场（现在就是简单取的搜索框第一个匹配的股票）
 
   - 字母型的代码有的直接跟市场代号，有的有分隔符（`.`/`:`）什么的
 
