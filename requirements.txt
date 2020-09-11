@@ -1,2 +1,3 @@
 demjson==2.2.4
 Scrapy==2.3.0
+cfscrape==2.1.1
