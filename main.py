@@ -11,6 +11,37 @@ def clear_line():
     sys.stdout.write('\x1b[1A')
     sys.stdout.write('\x1b[2K')
 
+def search(query_default=None, return_full=False):
+    ret = None
+    while True:
+        question = '搜索关键字，按 p 结束: ' if query_default is None else '搜索关键字，按 p 跳过(默认: {}): '.format(query_default)
+        query = input(question) or query_default or 'p'
+        clear_line()
+        if query == 'p':
+            print('已跳过.')
+            break
+        try:
+            search_res = investing.search(query)
+        except:
+            print('网络错误.')
+            continue
+        if search_res is None or len(search_res) == 0:
+            print('未搜索到结果.')
+            continue
+        options = list(map(lambda r: '{} | {} ({})'.format(r['search_main_subtext'], r['search_main_longtext'], r['search_main_text']), search_res[:10]))
+        options += ['重新搜索']
+        choice = enquiries.choose('上下选择对应的股票:', options)
+        if choice == '重新搜索':
+            continue
+        print('选中: {}'.format(choice))
+        ret = search_res[options.index(choice)]
+        ret = ret if return_full else ret['pair_ID']
+        break
+    if return_full is not True:
+        print()
+    return ret
+
+# here is where we begin
 if len(sys.argv) < 2:
     sys.exit('使用方法：python main.py *基金代码*')
 
@@ -25,32 +56,41 @@ if os.path.exists(conf_path):
 else:
     print('正在获取 {} 持仓信息...'.format(sys.argv[1]))
     lis = eastmoney.lists(sys.argv[1])
-    if len(lis) == 0:
-        sys.exit('未找到持仓信息.')
-    print('开始匹配行情信息.')
-    for item in lis:
-        print('代码: {}  名称：{}  权重: {}'.format(item['sid'], item['name'], item['weight']))
-        while True:
-            query = input('搜索关键字，按 p 跳过(默认: {}): '.format(item['sid'])) or item['sid']
-            clear_line()
-            if query == 'p':
-                print('已跳过.')
-                break
-            search_res = investing.search(query)
-            if search_res is None or len(search_res) == 0:
-                print('未搜索到结果.')
+    if lis is None or len(lis) == 0:
+        if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
+            i = 0
+            while True:
+                i += 1
+                print('添加 # {} 持仓信息:'.format(i))
+                item = search(return_full=True)
+                if item is None:
+                    break
+                weight = input('权重(百分比, 加%): ') or '0%'
+                data.append({
+                    'source': 'investing', 
+                    'investing_pairid': item['pair_ID'], 
+                    'name': item['search_main_longtext'], 
+                    'sid': item['search_main_text'], 
+                    'capital': '', 
+                    'volume': '', 
+                    'weight': weight
+                })
+                print()
+            if len(data) == 0:
+                sys.exit()
+        else:
+            sys.exit()
+    else:
+        print('开始匹配行情信息.')
+        for item in lis:
+            print('代码: {}  名称：{}  权重: {}'.format(item['sid'], item['name'], item['weight']))
+            pair_id = search(item['sid'].split('.')[0])
+            if pair_id is None:
                 continue
-            options = list(map(lambda r: '{} | {}'.format(r['search_main_subtext'], r['search_main_longtext']), search_res[:10]))
-            options += ['重新搜索']
-            choice = enquiries.choose('上下选择对应的股票:', options)
-            if choice == '重新搜索':
-                continue
-            print('选中: {}'.format(choice))
             item['source'] = 'investing'
-            item['investing_pairid'] = search_res[options.index(choice)]['pair_ID']
+            item['investing_pairid'] = pair_id
             data.append(item)
-            break
-        print()
+
     with open(conf_path, 'w') as f:
         f.write(demjson.encode(data))
         print('配置已保存至 {}, 如需更新持仓表请删除文件.'.format(conf_path))
@@ -64,6 +104,7 @@ for item in data:
     item_res = filter(lambda r: r['pair_ID'] == item["investing_pairid"], res)
     try:
         status = next(item_res)
+        item['open'] = status['exchange_is_open']
         item['last'] = status['last']
         item['change'] = status['change']
         item['change_percent'] = status['change_percent_val']
@@ -73,16 +114,18 @@ for item in data:
     except StopIteration:
         continue
 
+# show table
 table = Texttable()
 table.set_deco(Texttable.BORDER | Texttable.HEADER)
 table.header(['代码', '公司', '权重', '当前价', '涨跌', '幅度'])
 table.set_cols_dtype(['t','t','t','t','t','t'])
-table.set_cols_align(['c', 'l', 'c', 'r', 'r', 'r'])
-rows = [[i['sid'], i['name_provided'], i['weight'], i['last'], i['change'], i['change_percent'] + '%'] for i in data]
+table.set_cols_align(['r', 'l', 'c', 'r', 'r', 'r'])
+rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if i['open'] else ''), i['change'], i['change_percent'] + '%'] for i in data]
 table.add_rows(rows, header=False)
 print(table.draw())
 print('持仓表占总资产 {:.2f}%, 估值目前振幅为 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
 
+# export to csv
 if enquiries.confirm('需要输出到 CSV 文件吗?'):
     with open(sys.argv[1] + '.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['sid', 'name_provided', 'weight', 'last', 'change', 'change_percent'], extrasaction='ignore')

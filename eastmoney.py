@@ -11,6 +11,8 @@ headers = {
 def lists(fund_id):
     r = requests.get(__url.format(str(fund_id)), headers=headers)
     j = demjson.decode(r.content.decode('utf8').split('=', 1)[1][:-1])
+    if j['content'] == "":
+        return None
     s = BeautifulSoup(j['content'], features='lxml')
     def get_tr(tr):
         td = tr.find_all('td')
