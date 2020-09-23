@@ -11,9 +11,11 @@ headers = {
     'x-os': 'ios',
     'ccode_time': '{:.4f}'.format(time.time()),
 }
+proxies = None
+timeout = 20.
 
 def __get(url):
-    rsp = __session.get(__base_path.format(url), headers=headers).json()
+    rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout).json()
     if rsp['error']['display_message'] is not "":
         raise Exception(rsp['error']['display_message'])
     return rsp['data']

@@ -1,4 +1,5 @@
 import sys
+import argparse
 import os
 import enquiries
 import demjson
@@ -41,21 +42,24 @@ def search(query_default=None, return_full=False):
         print()
     return ret
 
-# here is where we begin
-if len(sys.argv) < 2:
-    sys.exit('使用方法：python main.py *基金代码*')
+parser = argparse.ArgumentParser(description='QDII 基金估值计算')
+parser.add_argument('fund_id', type=str, help='基金代码')
+parser.add_argument('--proxy', type=str, help='HTTP 代理 (格式: IP或域名:端口)')
+args = parser.parse_args()
+if args.proxy:
+    investing.proxies = {'https': 'http://' + args.proxy}
 
 data = []
-conf_path = sys.argv[1] + '.json'
 
 # confs
+conf_path = args.fund_id + '.json'
 if os.path.exists(conf_path):
     with open(conf_path, 'r') as f:
         data = demjson.decode(f.read())
         print('已读取配置, 如需更新持仓表请删除 {}.'.format(conf_path))
 else:
-    print('正在获取 {} 持仓信息...'.format(sys.argv[1]))
-    lis = eastmoney.lists(sys.argv[1])
+    print('正在获取 {} 持仓信息...'.format(args.fund_id))
+    lis = eastmoney.lists(args.fund_id)
     if lis is None or len(lis) == 0:
         if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
             i = 0
@@ -127,7 +131,7 @@ print('持仓表占总资产 {:.2f}%, 估值目前振幅为 {:.2f}%.'.format(tot
 
 # export to csv
 if enquiries.confirm('需要输出到 CSV 文件吗?'):
-    with open(sys.argv[1] + '.csv', 'w', newline='') as csvfile:
+    with open(args.fund_id + '.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['sid', 'name_provided', 'weight', 'last', 'change', 'change_percent'], extrasaction='ignore')
         writer.writeheader()
         writer.writerows(data)
