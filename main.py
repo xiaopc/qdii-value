@@ -6,6 +6,7 @@ import demjson
 from texttable import Texttable
 import csv
 import eastmoney
+import hsbc
 import investing
 
 def clear_line():
@@ -59,7 +60,7 @@ if os.path.exists(conf_path):
         print('已读取配置, 如需更新持仓表请删除 {}.'.format(conf_path))
 else:
     print('正在获取 {} 持仓信息...'.format(args.fund_id))
-    lis = eastmoney.lists(args.fund_id)
+    lis = eastmoney.lists(args.fund_id) or hsbc.lists(args.fund_id)
     if lis is None or len(lis) == 0:
         if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
             i = 0
@@ -136,4 +137,5 @@ if enquiries.confirm('需要输出到 CSV 文件吗?'):
         writer.writeheader()
         writer.writerows(data)
         writer.writerow({'sid': '总计', 'name_provided': '', 'weight': total_weight, 'last': '', 'change': '', 'change_percent': total_percent * 100})
+        print('已保存至 ' + args.fund_id + '.csv')
 

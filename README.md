@@ -14,7 +14,7 @@
 
 ## 介绍
 
-1. 通过抓取 eastmoney 上基金最近的持仓报告，获取持仓前 x 股票代码
+1. 通过抓取 eastmoney/hsbc 上基金最近的持仓报告，获取持仓前 x 股票代码
 
 2. 在 investing.com 上查询每只股票当前行情
 
@@ -25,6 +25,8 @@ Python 3.5+
 ```bash
 # 安装依赖
 pip install -r requirements.txt
-# 启动脚本，
+# 启动脚本
 python main.py 基金代码
+# 更多参数请参见帮助
+python main.py
 ```
