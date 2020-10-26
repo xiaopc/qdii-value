@@ -16,7 +16,7 @@ timeout = 20.
 
 def __get(url):
     rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout).json()
-    if rsp['error']['display_message'] is not "":
+    if rsp['error']['display_message'] != "":
         raise Exception(rsp['error']['display_message'])
     return rsp['data']
 

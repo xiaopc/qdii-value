@@ -1,5 +1,6 @@
 demjson==2.2.4
 requests==2.21.0
 beautifulsoup4==4.9.1
+lxml==4.6.1
 enquiries==0.1.0
 texttable==1.6.3
