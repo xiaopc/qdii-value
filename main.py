@@ -1,6 +1,7 @@
 import sys
 import argparse
 import os
+import time
 import enquiries
 import demjson
 from texttable import Texttable
@@ -32,7 +33,7 @@ def search(query_default=None, return_full=False):
             continue
         options = list(map(lambda r: '{} | {} ({})'.format(r['search_main_subtext'], r['search_main_longtext'], r['search_main_text']), search_res[:10]))
         options += ['重新搜索']
-        choice = enquiries.choose('上下选择对应的股票:', options)
+        choice = enquiries.choose('上下键选择对应的项目:', options)
         if choice == '重新搜索':
             continue
         print('选中: {}'.format(choice))
@@ -50,14 +51,26 @@ args = parser.parse_args()
 if args.proxy:
     investing.proxies = {'https': 'http://' + args.proxy}
 
-data = []
+data = {
+    'last_update': None,
+    'equities': [],
+    'reference': None
+}
 
 # confs
 conf_path = args.fund_id + '.json'
 if os.path.exists(conf_path):
     with open(conf_path, 'r') as f:
-        data = demjson.decode(f.read())
-        print('已读取配置, 如需更新持仓表请删除 {}.'.format(conf_path))
+        d = demjson.decode(f.read())
+    if isinstance(d, list):
+        print('发现旧版配置，自动更新...')
+        data['last_update'] = int(time.time())
+        data['equities'] = d
+        with open(conf_path, 'w') as f:
+            f.write(demjson.encode(data))
+    else:
+        data = d
+    print('已读取配置, 如需更新持仓表请删除 {}.'.format(conf_path))
 else:
     print('正在获取 {} 持仓信息...'.format(args.fund_id))
     lis = eastmoney.lists(args.fund_id) or hsbc.lists(args.fund_id)
@@ -71,7 +84,7 @@ else:
                 if item is None:
                     break
                 weight = input('权重(百分比, 加%): ') or '0%'
-                data.append({
+                data['equities'].append({
                     'source': 'investing', 
                     'investing_pairid': item['pair_ID'], 
                     'name': item['search_main_longtext'], 
@@ -81,7 +94,7 @@ else:
                     'weight': weight
                 })
                 print()
-            if len(data) == 0:
+            if len(data['equities']) == 0:
                 sys.exit()
         else:
             sys.exit()
@@ -94,17 +107,26 @@ else:
                 continue
             item['source'] = 'investing'
             item['investing_pairid'] = pair_id
-            data.append(item)
-
+            data['equities'].append(item)
+    if enquiries.confirm('需要增加参考指数吗?'):
+        item = search(return_full=True)
+        if item is not None:
+            data['reference'] = {
+                'source': 'investing', 
+                'investing_pairid': item['pair_ID'], 
+                'name': item['search_main_longtext'], 
+                'sid': item['search_main_text']
+            }
+    data['last_update'] = int(time.time())
     with open(conf_path, 'w') as f:
         f.write(demjson.encode(data))
         print('配置已保存至 {}, 如需更新持仓表请删除文件.'.format(conf_path))
 
 # status
-pair_ids = list(map(lambda x: x['investing_pairid'], data))
+pair_ids = list(map(lambda x: x['investing_pairid'], data['equities']))
 res = investing.lists(pair_ids)
 total_weight, total_percent = 0., 0.
-for item in data:
+for item in data['equities']:
     item_w = float(item['weight'][:-1]) / 100
     item_res = filter(lambda r: r['pair_ID'] == item["investing_pairid"], res)
     try:
@@ -125,17 +147,25 @@ table.set_deco(Texttable.BORDER | Texttable.HEADER)
 table.header(['代码', '公司', '权重', '当前价', '涨跌', '幅度'])
 table.set_cols_dtype(['t','t','t','t','t','t'])
 table.set_cols_align(['r', 'l', 'c', 'r', 'r', 'r'])
-rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if i['open'] else ''), i['change'], i['change_percent'] + '%'] for i in data]
+rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if i['open'] else ''), i['change'], i['change_percent'] + '%'] for i in data['equities']]
 table.add_rows(rows, header=False)
 print(table.draw())
 print('持仓表占总资产 {:.2f}%, 估值目前振幅为 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
+
+# reference
+ref = None
+if data['reference'] is not None:
+    ref = investing.lists([data['reference']['investing_pairid']])[0]
+    print('参考: {} 目前 {} 点, {}{}.'.format(data['reference']['name'], ref['last'], ref['change'], ref['change_precent']))
 
 # export to csv
 if enquiries.confirm('需要输出到 CSV 文件吗?'):
     with open(args.fund_id + '.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['sid', 'name_provided', 'weight', 'last', 'change', 'change_percent'], extrasaction='ignore')
         writer.writeheader()
-        writer.writerows(data)
+        writer.writerows(data['equities'])
         writer.writerow({'sid': '总计', 'name_provided': '', 'weight': total_weight, 'last': '', 'change': '', 'change_percent': total_percent * 100})
-        print('已保存至 ' + args.fund_id + '.csv')
+        if ref:
+            writer.writerow({'sid': data['reference']['name'], 'name_provided': '', 'weight': '', 'last': ref['last'], 'change': ref['change'], 'change_percent': ref['change_percent_val']})
+        print('已保存至 ' + args.fund_id + '.csv.')
 
