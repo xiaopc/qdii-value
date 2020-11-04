@@ -140,6 +140,7 @@ for item in data['equities']:
         total_weight += item_w
     except StopIteration:
         continue
+total_percent /= total_weight
 
 # show table
 table = Texttable()
