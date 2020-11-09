@@ -28,5 +28,5 @@ pip install -r requirements.txt
 # 启动脚本
 python main.py 基金代码
 # 更多参数请参见帮助
-python main.py
+python main.py --help
 ```
