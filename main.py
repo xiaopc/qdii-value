@@ -1,7 +1,7 @@
+from datetime import datetime, timedelta
 import sys
 import argparse
 import os
-import time
 import enquiries
 import demjson
 from texttable import Texttable
@@ -9,6 +9,12 @@ import csv
 import eastmoney
 import hsbc
 import investing
+
+# 以每日此时间前收盘作为交易日分界
+TRADING_START_HOUR = 9
+now = datetime.now()
+zeroToday = now - timedelta(hours=now.hour, minutes=now.minute, seconds=now.second,microseconds=now.microsecond)
+tradeToday = zeroToday + timedelta(hours=TRADING_START_HOUR)
 
 def clear_line():
     sys.stdout.write('\x1b[1A')
@@ -64,7 +70,7 @@ if os.path.exists(conf_path):
         d = demjson.decode(f.read())
     if isinstance(d, list):
         print('发现旧版配置，自动更新...')
-        data['last_update'] = int(time.time())
+        data['last_update'] = int(now.timestamp())
         data['equities'] = d
         with open(conf_path, 'w') as f:
             f.write(demjson.encode(data))
@@ -117,7 +123,7 @@ else:
                 'name': item['search_main_longtext'], 
                 'sid': item['search_main_text']
             }
-    data['last_update'] = int(time.time())
+    data['last_update'] = int(now.timestamp())
     with open(conf_path, 'w') as f:
         f.write(demjson.encode(data))
         print('配置已保存至 {}, 如需更新持仓表请删除文件.'.format(conf_path))
@@ -136,9 +142,10 @@ for item in data['equities']:
         item['change'] = status['change']
         item['change_percent'] = status['change_percent_val']
         item['name_provided'] = status['pair_name']
+        item['update_time'] = datetime.fromtimestamp(int(status['last_timestamp']))
         total_percent += item_w * float(item['change_percent']) / 100
         total_weight += item_w
-        if item['open']:
+        if item['update_time'] >= tradeToday:
             open_percent += item_w * float(item['change_percent']) / 100
             open_weight += item_w
     except StopIteration:
@@ -157,8 +164,8 @@ rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if
 table.add_rows(rows, header=False)
 print(table.draw())
 print('持仓表占总资产 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
-if open_weight > 0:
-    print('\U0001f504正在交易的占 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(open_weight * 100, open_percent * 100))
+if open_weight > 0 and open_weight != total_weight:
+    print('本交易日已更新 {:.2f}%, 此部分目前振 {:.2f}%.'.format(open_weight * 100, open_percent * 100))
 
 # reference
 ref = None
