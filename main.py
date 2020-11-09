@@ -125,7 +125,7 @@ else:
 # status
 pair_ids = list(map(lambda x: x['investing_pairid'], data['equities']))
 res = investing.lists(pair_ids)
-total_weight, total_percent = 0., 0.
+total_weight, total_percent, open_weight, open_percent = 0., 0., 0., 0.
 for item in data['equities']:
     item_w = float(item['weight'][:-1]) / 100
     item_res = filter(lambda r: r['pair_ID'] == item["investing_pairid"], res)
@@ -138,9 +138,14 @@ for item in data['equities']:
         item['name_provided'] = status['pair_name']
         total_percent += item_w * float(item['change_percent']) / 100
         total_weight += item_w
+        if item['open']:
+            open_percent += item_w * float(item['change_percent']) / 100
+            open_weight += item_w
     except StopIteration:
         continue
 total_percent /= total_weight
+if open_weight > 0:
+    open_percent /= open_weight
 
 # show table
 table = Texttable()
@@ -151,7 +156,9 @@ table.set_cols_align(['r', 'l', 'c', 'r', 'r', 'r'])
 rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if i['open'] else ''), i['change'], i['change_percent'] + '%'] for i in data['equities']]
 table.add_rows(rows, header=False)
 print(table.draw())
-print('持仓表占总资产 {:.2f}%, 估值目前振幅为 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
+print('持仓表占总资产 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
+if open_weight > 0:
+    print('\U0001f504正在交易的占 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(open_weight * 100, open_percent * 100))
 
 # reference
 ref = None
