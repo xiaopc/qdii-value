@@ -14,6 +14,7 @@ def lists(fund_id):
     if j['content'] == "":
         return None
     s = BeautifulSoup(j['content'], features='lxml')
+    n = s.div.div.h4.label.a.string
     def get_tr(tr):
         td = tr.find_all('td')
         return {
@@ -23,4 +24,4 @@ def lists(fund_id):
             'volume': td[7].string,
             'capital': td[8].string
         }
-    return list(map(get_tr, s.div.div.table.tbody.find_all('tr')))
+    return (n, list(map(get_tr, s.div.div.table.tbody.find_all('tr'))))

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil import tz
 import sys
 import argparse
 import os
@@ -11,8 +12,9 @@ import hsbc
 import investing
 
 # 以每日此时间前收盘作为交易日分界
-TRADING_START_HOUR = 9
-now = datetime.now()
+TRADING_START_HOUR = 8
+tz_sh = tz.gettz('Asia/Shanghai')
+now = datetime.now(tz=tz_sh)
 zeroToday = now - timedelta(hours=now.hour, minutes=now.minute, seconds=now.second,microseconds=now.microsecond)
 tradeToday = zeroToday + timedelta(hours=TRADING_START_HOUR)
 
@@ -79,7 +81,7 @@ if os.path.exists(conf_path):
     print('已读取配置, 如需更新持仓表请删除 {}.'.format(conf_path))
 else:
     print('正在获取 {} 持仓信息...'.format(args.fund_id))
-    lis = eastmoney.lists(args.fund_id) or hsbc.lists(args.fund_id)
+    fund_name, lis = eastmoney.lists(args.fund_id) or hsbc.lists(args.fund_id)
     if lis is None or len(lis) == 0:
         if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
             i = 0
@@ -124,6 +126,7 @@ else:
                 'sid': item['search_main_text']
             }
     data['last_update'] = int(now.timestamp())
+    data['fund_name'] = fund_name
     with open(conf_path, 'w') as f:
         f.write(demjson.encode(data))
         print('配置已保存至 {}, 如需更新持仓表请删除文件.'.format(conf_path))
@@ -142,7 +145,7 @@ for item in data['equities']:
         item['change'] = status['change']
         item['change_percent'] = status['change_percent_val']
         item['name_provided'] = status['pair_name']
-        item['update_time'] = datetime.fromtimestamp(int(status['last_timestamp']))
+        item['update_time'] = datetime.fromtimestamp(int(status['last_timestamp']), tz=tz_sh)
         total_percent += item_w * float(item['change_percent']) / 100
         total_weight += item_w
         if item['update_time'] >= tradeToday:
@@ -158,10 +161,13 @@ if open_weight > 0:
 table = Texttable()
 table.set_deco(Texttable.BORDER | Texttable.HEADER)
 table.header(['代码', '公司', '权重', '当前价', '涨跌', '幅度'])
-table.set_cols_dtype(['t','t','t','t','t','t'])
+table.set_cols_dtype(['t', 't', 't', 't', 't', 't'])
 table.set_cols_align(['r', 'l', 'c', 'r', 'r', 'r'])
 rows = [[i['sid'], i['name_provided'], i['weight'], i['last'] + ('\U0001f504' if i['open'] else ''), i['change'], i['change_percent'] + '%'] for i in data['equities']]
 table.add_rows(rows, header=False)
+if 'fund_name' in data.keys():
+    print(data['fund_name'])
+print('数据截止:' + max(data['equities'], key=lambda i: i['update_time'])['update_time'].strftime('%Y-%m-%d %H:%M:%S'))
 print(table.draw())
 print('持仓表占总资产 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(total_weight * 100, total_percent * 100))
 if open_weight > 0 and open_weight != total_weight:

@@ -10,6 +10,7 @@ headers = {
 def lists(fund_id):
     r = requests.get(__url.format(str(fund_id)), headers=headers)
     s = BeautifulSoup(r.content, features='lxml')
+    n = s.find(id=re.compile('lbFundNameText')).string
     p = s.find(id=re.compile('panelTop10')).find(class_='ms_table')
     if p is None:
         return None
@@ -21,4 +22,4 @@ def lists(fund_id):
             'capital': td[2].string,
             'weight': td[3].string + '%'
         }
-    return list(map(get_tr, p.table.find_all('tr')))[1:]
+    return (n, list(map(get_tr, p.table.find_all('tr')))[1:])
