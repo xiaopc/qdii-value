@@ -82,6 +82,7 @@ if os.path.exists(conf_path):
 else:
     print('正在获取 {} 持仓信息...'.format(args.fund_id))
     fund_name, lis = eastmoney.lists(args.fund_id) or hsbc.lists(args.fund_id)
+    print('{}({})'.format(fund_name, args.fund_id))
     if lis is None or len(lis) == 0:
         if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
             i = 0
