@@ -16,17 +16,43 @@
 
 1. 通过抓取 eastmoney/hsbc 上基金最近的持仓报告，获取持仓前 x 股票代码
 
-2. 在 investing.com 上查询每只股票当前行情
+2. 在 investing/新浪财经 上查询每只股票当前行情
+
+## 安装
+
+Python 3.6+
+
+```bash
+# 使用 pip 安装 (加 -e 参数为本地开发模式)
+$ pip install '当前目录'
+# 使用 setuptools 安装 (develop 为本地开发模式，--record 输出文件列表)
+$ python setup.py install
+```
 
 ## 使用
 
-Python 3.5+
+**注意：0.3.0 版本起不支持旧版配置文件**
+
+### 命令行界面 CLI
 
 ```bash
-# 安装依赖
-pip install -r requirements.txt
 # 启动脚本
-python main.py 基金代码
+$ qdii-value 基金代码
 # 更多参数请参见帮助
-python main.py --help
+$ qdii-value --help
+```
+
+### 作为库调用
+
+```python
+from qdii_value.confs import Config
+from qdii_value import processing
+
+c = Config(json_conf_as_an_object)
+
+equities, summary = processing.fetch(c.data['equities'])
+if c.data['reference']:
+    reference = processing.single_fetch(c.data['reference'])
+
+# ...
 ```

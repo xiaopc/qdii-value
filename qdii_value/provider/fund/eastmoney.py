@@ -3,10 +3,12 @@ import requests
 import demjson
 from bs4 import BeautifulSoup
 
-__url = 'http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code={}&topline=50&year=&month=&rt=' + str(random.random())
+__url = 'http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code={}&topline=50&year=&month=&rt=' + \
+    str(random.random())
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
 }
+
 
 def lists(fund_id):
     r = requests.get(__url.format(str(fund_id)), headers=headers)
@@ -15,13 +17,15 @@ def lists(fund_id):
         return None
     s = BeautifulSoup(j['content'], features='lxml')
     n = s.div.div.h4.label.a.string
+    d = s.div.div.h4.find('font').string
+
     def get_tr(tr):
         td = tr.find_all('td')
         return {
-            'sid': td[1].string,
+            'code': td[1].string,
             'name': td[2].string,
-            'weight': td[6].string,
+            'weight': td[6].string[:-1],
             'volume': td[7].string,
             'capital': td[8].string
         }
-    return (n, list(map(get_tr, s.div.div.table.tbody.find_all('tr'))))
+    return {"fund_name": n, "last_update": d, "equities": list(map(get_tr, s.div.div.table.tbody.find_all('tr')))}
