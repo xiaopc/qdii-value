@@ -78,14 +78,13 @@ REALTIME_FIELDS = {
            ],
     '41': [('corp', str), ('closing', Decimal), ('percent', Decimal), ('time', str),
            ('delta', Decimal), ('opening', Decimal), ('highest', Decimal),
-           ('lowest', Decimal), ('closing', Decimal), ('52w_highest', Decimal),
-           ('52w_lowest', Decimal), ('volume', Decimal), ('avg_vol', Decimal),
-           ('total_share', Decimal), ('eps', str), ('pe', str), ('', RET_N),
-           ('beta', Decimal), ('dividend', Decimal), ('income', Decimal), ('shares', Decimal),
-           ('', RET_N), ('hour_price', Decimal), 
-           ('hour_change_percent', Decimal),  # ('hour_datetime', str)
-           ('', RET_N), ('datetime', str), ('last_closing', Decimal),
-           ('hour_volume', Decimal)
+           ('lowest', Decimal), ('52w_highest', Decimal), ('52w_lowest', Decimal), 
+           ('volume', Decimal), ('avg_vol', Decimal), ('total_share', Decimal), 
+           ('eps', str), ('pe', str), ('', RET_N), ('beta', Decimal), 
+           ('dividend', str), ('income', str), ('shares', Decimal), ('', RET_N),
+           ('after_hour_price', Decimal), ('after_hour_percent', Decimal),
+           ('after_hour_delta', Decimal), ('after_hour_datetime', str), ('datetime', str),
+           ('last_closing', Decimal), ('after_hour_volume', Decimal)
            ]
 }
 

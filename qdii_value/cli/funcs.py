@@ -6,12 +6,13 @@ import csv
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import processing
-from provider.fund import *
 from provider.equity import *
+from provider.fund import *
 from confs import Config, _equity
 
 
 CUR_EQ_PROVIDER = EQUITY_PROVIDER[0]
+
 
 def clear_line():
     sys.stdout.write('\x1b[1A')
@@ -121,14 +122,20 @@ def fetch_and_draw(conf):
     table.header(['代码', '名称', '权重', '当前', '涨跌', '幅度'])
     table.set_cols_dtype(['t', 't', 't', 't', 't', 't'])
     table.set_cols_align(['r', 'l', 'r', 'r', 'r', 'r'])
-    rows = [[i['code'], ('\U0001f504' if i['is_open'] else '') + i['name'],
-             '{:.2f}%'.format(i['weight']), '{:.2f}'.format(i['last']),
-             '{:+.2f}'.format(i['change']), '{:+.2f}%'.format(i['change_percent'])] for i in equities]
+    rows = []
+    for i in equities:
+        rows.append([i['code'], ('\U0001f504' if i['is_open'] else '') + i['name'],
+                 '{:.2f}%'.format(i['weight']), '{:.2f}'.format(i['last']),
+                 '{:+.2f}'.format(i['change']), '{:+.2f}%'.format(i['change_percent'])])
+        if 'after_hour_percent' in i.keys():
+            rows.append(['', '', '延时', '{:.2f}'.format(i['after_hour_price']),
+                     '{:+.2f}'.format(i['after_hour_change']), '{:+.2f}%'.format(i['after_hour_percent'])])
     table.add_rows(rows, header=False)
 
     print('\n' + conf.data['fund_name'])
     print(table.draw())
-    print('(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime('%Y-%m-%d %H:%M:%S'), conf.data['last_update']))
+    print('(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime(
+        '%Y-%m-%d %H:%M:%S'), conf.data['last_update']))
     print('持仓表占总资产 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(
         summary['total_weight'], summary['total_percent']))
     if summary['today_weight'] > 0 and summary['today_weight'] != summary['total_weight']:
@@ -153,8 +160,8 @@ def output_csv(path, equities, summary, reference):
         writer.writerow({'code': '总计', 'name': '', 'weight': summary['total_weight'],
                          'last': '', 'change': '', 'change_percent': summary['total_percent']})
         if summary['today_weight'] > 0 and summary['today_weight'] != summary['total_weight']:
-            writer.writerow({'code': '本交易日', 'name': '',
-                             'weight': summary['today_weight'], 'last': '', 'change': '', 'change_percent': summary['today_percent']})
+            writer.writerow({'code': '本交易日', 'name': '', 'weight': summary['today_weight'],
+                             'last': '', 'change': '', 'change_percent': summary['today_percent']})
         if reference:
             writer.writerow({'code': reference['name'], 'name': '', 'weight': '', 'last': reference['last'],
                              'change': reference['change'], 'change_percent': reference['change_percent']})
