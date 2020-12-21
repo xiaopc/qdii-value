@@ -33,16 +33,17 @@ def create_conf(obj, _id):
 
 
 def get_fund(_id):
-    global FUND_PROVIDER
+    global FUND_PROVIDER_CN, FUND_PROVIDER_GL
     ret = None
+    provider = FUND_PROVIDER_CN if _id.isdigit() else FUND_PROVIDER_GL
     try:
-        for f in FUND_PROVIDER:
+        for f in provider:
             ret = f.lists(_id)
             if ret:
-                break
+                return f.__name__.split('.')[-1], ret
     except:
         print('查询时出现故障.')
-    return ret
+    return None, None
 
 
 def search_equity(default_query=None):
@@ -85,7 +86,7 @@ def get_equity_list(conf):
     for item in conf.data['equities']:
         print('代码: {}  名称：{}  权重: {}'.format(
             item['code'], item['name'], item['weight']))
-        ret = search_equity(item['code'].split('.')[0])
+        ret = search_equity(item['code'].split('.')[0].split(':')[0])
         if ret is None:
             continue
         item.update(ret)
@@ -120,7 +121,7 @@ def fetch_and_draw(conf):
     table.header(['代码', '名称', '权重', '当前', '涨跌', '幅度'])
     table.set_cols_dtype(['t', 't', 't', 't', 't', 't'])
     table.set_cols_align(['r', 'l', 'r', 'r', 'r', 'r'])
-    rows = [[i['code'], i['name'] + ('\U0001f504' if i['is_open'] else ''),
+    rows = [[i['code'], ('\U0001f504' if i['is_open'] else '') + i['name'],
              '{:.2f}%'.format(i['weight']), '{:.2f}'.format(i['last']),
              '{:+.2f}'.format(i['change']), '{:+.2f}%'.format(i['change_percent'])] for i in equities]
     table.add_rows(rows, header=False)

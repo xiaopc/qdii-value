@@ -4,6 +4,7 @@ _data = {
     "_id": None,
     "version": None,
     "fund_name": None,
+    "fund_source": None,
     "last_update": None,
     "reference": None,
     "equities": None
