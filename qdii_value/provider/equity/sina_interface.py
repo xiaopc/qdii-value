@@ -5,14 +5,13 @@ from datetime import datetime, timedelta
 DATEPARSER_SETTINGS = {'TIMEZONE': 'Asia/Shanghai', 'RETURN_AS_TIMEZONE_AWARE': True}
 
 def search(kw, _type=['11', '31', '41']):
-    res = sina.search(kw, _type)
     return [
         {
             'source_id': i['code_full'],
             'code': i['code'].upper(),
             'name': i['corp'],
             'type': i['type']
-        } for i in res
+        } for i in sina.search(kw, _type)
     ]
 
 
@@ -38,3 +37,14 @@ def realtime(ids):
             c['after_hour_datetime'] = dateparser.parse(i['after_hour_datetime'])
         ret.append(c)
     return ret
+
+
+def history(*args, **kwargs):
+    return [{
+            'date': i['date'],
+            'open': i['open'],
+            'high': i['high'],
+            'low': i['low'],
+            'close': i['close'],
+            'volume': i['volume'],
+            } for i in sina.history(*args, **kwargs)]

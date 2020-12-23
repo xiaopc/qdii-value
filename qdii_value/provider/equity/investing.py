@@ -7,6 +7,7 @@ __session = requests.Session()
 headers = {
     'User-Agent': 'Investing.China/0.0.1 CFNetwork/1128.0.1 Darwin/19.6.0',
     'ccode': 'CN',
+    'x-app-ver': '144',
     'x-meta-ver': '14',
     'x-os': 'ios',
     'ccode_time': '{:.4f}'.format(time.time()),
@@ -14,11 +15,11 @@ headers = {
 proxies = None
 timeout = 20.
 
-def __get(url):
+def __get(url, get_data=True):
     rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout).json()
-    if rsp['error']['display_message'] != "":
+    if 'error' in rsp.keys() and rsp['error']['display_message'] != "":
         raise Exception(rsp['error']['display_message'])
-    return rsp['data']
+    return rsp['data'] if get_data else rsp
 
 # [{'pair_ID': 9235, 'search_main_text': 'RS', 'search_main_longtext': 'Reliance Steel & Aluminum Co.', 'exchange_flag_ci': 5, 'search_main_subtext': '股票 - 纽约'}, ...]
 def search(kw):
@@ -34,3 +35,23 @@ def detail(pair_id):
 def lists(pair_ids):
     url = 'get_screen.php?v2=1&skinID=1&include_pair_attr=false&screen_ID=30&pairs_IDs=' + ','.join(map(lambda x: str(x), pair_ids))
     return __get(url)[0]['screen_data']['pairs_additional']
+
+# 21 days most (including this exchange day)
+# [{'start_timestamp': 1608588000000, 'open': 1774.43, 'max': 1777.32, 'min': 1764.84, 'close': 1773.84, 'navigation': 'd'}, ...]
+def history_o(pair_id, limit=21):
+    url = 'chart_range.php?range=6m&skinID=1&pair_ID=' + str(pair_id)
+    return __get(url, False)['candles'][-limit:]
+
+def history(pair_id, start_timestamp, end_timestamp):
+    now_ts = int(time.time())
+    url = 'http://tvc3.investingapp.net/7d263b5e085ea9ddbd3d7274bdec1c82/{}/6/8/history?symbol={}&resolution=D&from={}&to={}'
+    header = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+        'Origin': 'http://tvc-invdn-com.akamaized.net',
+        'Referer': 'http://tvc-invdn-com.akamaized.net/ios/1.12.8/0/index1-prod.html'
+    }
+    resp = requests.get(url.format(now_ts, pair_id, start_timestamp, end_timestamp), headers=header, proxies=proxies, timeout=timeout).json()
+    if 't' in resp.keys():
+        return zip(resp['t'], resp['o'], resp['h'], resp['l'], resp['c'], resp['v'])
+    else:
+        return None

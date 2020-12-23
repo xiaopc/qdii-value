@@ -4,7 +4,7 @@ else:
     from provider.equity import *
 from datetime import datetime, timedelta
 from dateutil import tz
-from itertools import chain
+from itertools import chain, groupby
 from decimal import Decimal
 
 # 以每日此时间前收盘作为交易日分界
@@ -35,6 +35,15 @@ def get_data_from_provider(provider, equities):
         except StopIteration:
             continue
     return equities
+
+
+def get_history_from_provider(provider, equities, **kwargs):
+    items = []
+    for e in equities:
+        r = e.copy()
+        r['history'] = provider['object'].history(e['source_id'], **kwargs)
+        items.append(r)
+    return items
 
 
 def combine_summary(d):
@@ -75,3 +84,10 @@ def fetch(equities):
     for provider in d:
         d[provider] = get_data_from_provider(*d[provider])
     return combine_summary(d)
+
+def fetch_history(equities, **kwargs):
+    d = divide_by_provider(equities)
+    s = []
+    for provider in d:
+        s += get_history_from_provider(*d[provider], **kwargs)
+    return s

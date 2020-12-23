@@ -52,9 +52,23 @@ from qdii_value import processing
 
 c = Config(json_conf_as_an_object)
 
+# 多 equity 实时涨跌及其统计
 equities, summary = processing.fetch(c.data['equities'])
+
 if c.data['reference']:
+    # 单 equity 实时
     reference = processing.single_fetch(c.data['reference'])
+
+# 多 equity 历史 K 线
+# 提示：接口定义可能在后续版本中有所变动
+# 新浪源 A/H 股需要手动安装 STPyV8 包：https://github.com/area1/stpyv8
+# 通过 whl 包安装若遇到 .so 找不到等报错，则需补全依赖
+# 如 libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev
+# 新浪源美股仅提供最近 140 天数据
+history = processing.fetch_history(c.data['equities'], limit=21)
+# investing 源推荐使用指定日期接口
+from qdii_value.provider.equity import investing
+his = investing.history(41042, 1606885171, 1608699571)
 
 # ...
 ```

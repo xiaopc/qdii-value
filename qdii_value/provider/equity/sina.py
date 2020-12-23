@@ -3,13 +3,18 @@
 
 import requests
 import datetime
+from functools import partial
 from decimal import Decimal
+import os
+import json
 
 
 def RET_N(a): return None
 
 
-# search
+# +----------+
+#    search
+# +----------+
 SEARCH_URL = 'https://suggest3.sinajs.cn/suggest/type=%s&key=%s&name='
 
 SEARCH_TYPES = {'11': "A 股", '12': "B 股", '13': "权证", '14': "期货", '15': "债券", '21': "开基",
@@ -42,8 +47,9 @@ def search(kw, types=[]):
         results.append(r)
     return results
 
-
-# realtime
+# +----------+
+#   realtime
+# +----------+
 REALTIME_URL = 'http://hq.sinajs.cn/?list=%s'
 
 CN_STATUS = {
@@ -119,6 +125,69 @@ def realtime(*symbols):
         results.append(dict(kvs))
     return results
 
+
+# +----------+
+#    history
+# +----------+
+DECOMPRESSER_JS = None
+HISTORY_URL_HK = 'https://finance.sina.com.cn/stock/hkstock/{}/klc_kl.js'
+HISTORY_URL_CN = 'https://finance.sina.com.cn/realstock/company/{}/hisdata_klc2/klc_kl.js'
+def TO_FIX_2(f): return Decimal(f).quantize(Decimal("0.00"))
+
+# till last exchange day
+def history_cnhk(url, code, limit=21):
+    global DECOMPRESSER_JS, HISTORY_URL_HK
+    try:
+        import STPyV8
+    except ImportError:
+        raise Exception('需要手动安装 STPyV8 才能解析数据.')
+    if not DECOMPRESSER_JS:
+        with open(os.path.dirname(__file__) + '/sina_decompress.js', 'r') as js:
+            DECOMPRESSER_JS = js.read()
+    with STPyV8.JSContext() as ctxt:
+        decompress = ctxt.eval(DECOMPRESSER_JS)
+        compressed = requests.get(url.format(code)).text.split('\n')[
+            0].split('\"')[1]
+        ret = json.loads(decompress(compressed))
+        return [{
+            'date': i['date'],
+            'open': TO_FIX_2(i['open']),
+            'high': TO_FIX_2(i['high']),
+            'low': TO_FIX_2(i['low']),
+            'close': TO_FIX_2(i['close']),
+            'volume': TO_FIX_2(i['volume']),
+        } for i in ret[-limit:]]
+
+
+HISTORY_URL_US = 'http://stock.finance.sina.com.cn/usstock/api/json.php/US_MinKService.getDailyK?symbol={}&___qn=3'
+US_DAILY_CONVERT = lambda d, o, h, l, c, v, **kwargs: {
+    'date': str(d),
+    'open': Decimal(o),
+    'high': Decimal(h),
+    'low': Decimal(l),
+    'close': Decimal(c),
+    'volume': Decimal(v),
+}
+
+# 139 days
+def history_us(code, limit=21):
+    return [US_DAILY_CONVERT(**data) for data in requests.get(HISTORY_URL_US.format(code)).json()[-limit:]]
+
+
+HISTORY_PROCESSER = {
+    '11': partial(history_cnhk, HISTORY_URL_CN),
+    '31': partial(history_cnhk, HISTORY_URL_HK),
+    '41': history_us
+}
+
+
+def history(symbol, **kwargs):
+    typ, code = symbol.split('#')
+    return HISTORY_PROCESSER[typ](code, **kwargs)
+
+# +----------+
+#     test
+# +----------+
 
 def test():
     print(search('腾讯'))
