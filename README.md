@@ -20,6 +20,8 @@
 
 新浪财经支持 A/H/美股，延迟低；investing 支持的市场范围广
 
+可作为 package 调用，demo: [telegram @ono_rin_bot](https://t.me/ono_rin_bot)
+
 ## 安装
 
 Python 3.6+
