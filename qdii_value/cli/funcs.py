@@ -114,6 +114,13 @@ def custom_equities():
     return equities
 
 
+def remove_col_suffix(table, col, suffix):
+    l = len(list(filter(lambda a: a[col].endswith(suffix), table)))
+    if l == len(table):
+        for row in table:
+            row[col] = row[col][:-len(suffix)]
+
+
 def fetch_and_draw(conf):
     equities, summary = processing.fetch(conf.data['equities'])
 
@@ -130,6 +137,8 @@ def fetch_and_draw(conf):
         if 'after_hour_percent' in i.keys():
             rows.append(['', '', '延时', '{:.2f}'.format(i['after_hour_price']),
                      '{:+.2f}'.format(i['after_hour_change']), '{:+.2f}%'.format(i['after_hour_percent'])])
+    remove_col_suffix(rows, 3, '.00')
+    remove_col_suffix(rows, 4, '.00')
     table.add_rows(rows, header=False)
 
     print('\n' + conf.data['fund_name'])

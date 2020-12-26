@@ -25,6 +25,9 @@ def search(kw, _type=None):
     ]
 
 
+def sign_fix(s): return s[1:] if s.startswith('+-') else s
+
+
 def realtime(ids):
     global tz_sh
     if len(ids) == 0:
@@ -35,8 +38,8 @@ def realtime(ids):
             'source_id': i['pair_ID'],
             'name': i['pair_name'],
             'last': Decimal(i['last'].replace(',', '')),
-            'change': Decimal(i['change_val']),
-            'change_percent': Decimal(i['change_percent_val']),
+            'change': Decimal(sign_fix(i['change_val'])),
+            'change_percent': Decimal(sign_fix(i['change_percent_val'])),
             'is_open': i['exchange_is_open'],
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
         } for i in res
