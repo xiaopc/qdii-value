@@ -1,7 +1,9 @@
 import sys
 import os
 import enquiries
-from texttable import Texttable
+from rich import box
+from rich.console import Console
+from rich.table import Column, Table
 import csv
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -87,7 +89,7 @@ def get_equity_list(conf):
     for item in conf.data['equities']:
         print('代码: {}  名称：{}  权重: {}'.format(
             item['code'], item['name'], item['weight']))
-        ret = search_equity(item['code'].split('.')[0].split(':')[0])
+        ret = search_equity(item['code'].split('.')[0].split(':')[0] if item['code'] else item['name'])
         if ret is None:
             continue
         item.update(ret)
@@ -120,44 +122,72 @@ def remove_col_suffix(table, col, suffix):
         for row in table:
             row[col] = row[col][:-len(suffix)]
 
+def red_green(num, fmt):
+    if num > 0:
+        return '[red]' + fmt.format(num) + '[/red]'
+    elif num < 0:
+        return '[green]' + fmt.format(num) + '[/green]'
+    else:
+        return fmt.format(sum)
+
 
 def fetch_and_draw(conf):
     equities, summary = processing.fetch(conf.data['equities'])
+    reference = processing.single_fetch(
+        conf.data['reference']) if conf.data['reference'] else None
 
-    table = Texttable()
-    table.set_deco(Texttable.BORDER | Texttable.HEADER)
-    table.header(['代码', '名称', '权重', '当前', '涨跌', '幅度'])
-    table.set_cols_dtype(['t', 't', 't', 't', 't', 't'])
-    table.set_cols_align(['r', 'l', 'r', 'r', 'r', 'r'])
+    caption = '(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime(
+        '%Y-%m-%d %H:%M:%S'), conf.data['last_update'])
+    table = Table(title=conf.data['fund_name'], 
+                  caption=caption, caption_style='white', caption_justify='right',
+                  box=box.ROUNDED, show_footer=True)
+
+    footer_name = '总计'
+    footer_weight = '{:.2f}%'.format(summary['total_weight'])
+    footer_current = ''
+    footrt_change = ''
+    footer_precent = red_green(summary['total_percent'], '{:+.2f}%')
+    if summary['today_weight'] > 0 and summary['today_weight'] != summary['total_weight']:
+        footer_name += '\n今日交易'
+        footer_weight += '\n' + '{:.2f}%'.format(summary['today_weight'])
+        footer_current += '\n'
+        footrt_change += '\n'
+        footer_precent += '\n' + red_green(summary['today_percent'], '{:+.2f}%')
+    if reference:
+        footer_name += '\n' + reference['name']
+        footer_weight += '\n'
+        footer_current += '\n' + '{:.2f}'.format(reference['last'])
+        footrt_change += '\n' + red_green(reference['change'], '{:+.2f}')
+        footer_precent += '\n' + red_green(reference['change_percent'], '{:+.2f}%')
+
+    table.add_column("代码", justify="right", no_wrap=True)
+    table.add_column("名称", justify="left",  no_wrap=False, footer=footer_name)
+    table.add_column("权重", justify="right", no_wrap=True,  footer=footer_weight)
+    table.add_column("当前", justify="right", no_wrap=True,  footer=footer_current)
+    table.add_column("涨跌", justify="right", no_wrap=True,  footer=footrt_change)
+    table.add_column("幅度", justify="right", no_wrap=True,  footer=footer_precent)
+
     rows = []
     for i in equities:
-        rows.append([i['code'], ('\U0001f504' if i['is_open'] else '') + i['name'],
-                 '{:.2f}%'.format(i['weight']), '{:.2f}'.format(i['last']),
-                 '{:+.2f}'.format(i['change']), '{:+.2f}%'.format(i['change_percent'])])
+        rows.append([
+            i['code'],
+            ('\U0001f504' if i['is_open'] else '') + i['name'],
+            '{:.2f}%'.format(i['weight']),
+            '{:.2f}'.format(i['last']),
+            red_green(i['change'], '{:+.2f}'),
+            red_green(i['change_percent'], '{:+.2f}%'),
+        ])
         if 'after_hour_percent' in i.keys():
             rows.append(['', '', '延时', '{:.2f}'.format(i['after_hour_price']),
-                     '{:+.2f}'.format(i['after_hour_change']), '{:+.2f}%'.format(i['after_hour_percent'])])
+                         red_green(i['after_hour_change'], '{:+.2f}'), red_green(i['after_hour_percent'], '{:+.2f}%')])
+
     remove_col_suffix(rows, 3, '.00')
     remove_col_suffix(rows, 4, '.00')
-    table.add_rows(rows, header=False)
-
-    print('\n' + conf.data['fund_name'])
-    print(table.draw())
-    print('(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime(
-        '%Y-%m-%d %H:%M:%S'), conf.data['last_update']))
-    print('持仓表占总资产 {:.2f}%, 估值目前振幅 {:.2f}%.'.format(
-        summary['total_weight'], summary['total_percent']))
-    if summary['today_weight'] > 0 and summary['today_weight'] != summary['total_weight']:
-        print('本交易日已更新 {:.2f}%, 此部分目前振 {:.2f}%.'.format(
-            summary['today_weight'], summary['today_percent']))
-    return equities, summary
-
-
-def fetch_reference(ref):
-    r = processing.single_fetch(ref)
-    print('参考: {} 目前 {:.2f} 点, {:+.2f} ({:+.2f}%).'.format(
-        r['name'], r['last'], r['change'], r['change_percent']))
-    return r
+    [table.add_row(*row) for row in rows]
+    print()
+    console = Console()
+    console.print(table)
+    return equities, summary, reference
 
 
 def output_csv(path, equities, summary, reference):

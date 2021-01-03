@@ -12,7 +12,7 @@ def search(kw, _type=['11', '31', '41']):
         {
             'source_id': i['code_full'],
             'code': i['code'].upper(),
-            'name': i['corp'],
+            'name': i['name_cn'],
             'type': i['type']
         } for i in sina.search(kw, _type)
     ]
@@ -26,7 +26,7 @@ def realtime(ids):
     for i in res:
         c = {
             'source_id': i['code_full'],
-            'name': i['corp'],
+            'name': i['name'],
             'last': i['closing'],
             'change': i['delta'] if 'delta' in i.keys() else i['closing'] - i['last_closing'],
         }

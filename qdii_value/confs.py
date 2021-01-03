@@ -7,13 +7,14 @@ _data = {
     "fund_source": None,
     "last_update": None,
     "reference": None,
+    "forex": None,
     "equities": None
 }
 _equity = {
     "source": None,    # String,
-    "source_id": None,  # String/Integer
+    "source_id": None, # String/Integer
     "name": None,      # String,
-    "code": None,       # String,
+    "code": None,      # String,
     "capital": None,   # Optional String,
     "volume": None,    # Optional String,
     "weight": None     # String+%

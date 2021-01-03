@@ -75,8 +75,7 @@ class ListingState(State):
     def action(self):
         global FUND_ID, FUND_CONF, FUND_CONF_PATH
 
-        equities, summary = fetch_and_draw(FUND_CONF)
-        reference = fetch_reference(FUND_CONF.data['reference']) if FUND_CONF.data['reference'] else None
+        equities, summary, reference = fetch_and_draw(FUND_CONF)
         if enquiries.confirm('需要输出到 CSV 文件吗?'):
             output_csv(FUND_ID.translate(TRANS_TABLE) + '.csv', equities, summary, reference)
         return None
