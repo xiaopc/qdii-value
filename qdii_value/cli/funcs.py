@@ -124,11 +124,11 @@ def remove_col_suffix(table, col, suffix):
 
 def red_green(num, fmt):
     if num > 0:
-        return '[red]' + fmt.format(num) + '[/red]'
+        return '[bright_red]' + fmt.format(num) + '[/bright_red]'
     elif num < 0:
-        return '[green]' + fmt.format(num) + '[/green]'
+        return '[bright_green]' + fmt.format(num) + '[/bright_green]'
     else:
-        return fmt.format(sum)
+        return fmt.format(num)
 
 
 def fetch_and_draw(conf):
