@@ -1,11 +1,14 @@
 import sys
 import os
 import string
+import time
 import enquiries
+from rich.live import Live
 from datetime import datetime
 from dateutil import tz
 from .funcs import *
 
+ARGS = None
 FUND_ID, FUND_CONF = None, None
 FUND_CONF_PATH = '{}.json'
 TRANS_TABLE = ''.maketrans(string.punctuation, '_' * len(string.punctuation))
@@ -34,16 +37,14 @@ class FindFundState(State):
 
         print('正在获取 {} 持仓信息...'.format(FUND_ID))
         source, ret = get_fund(FUND_ID)
-        if ret is None or len(ret["equities"]) == 0:
-            if enquiries.confirm('未找到持仓信息，需要手动添加吗?'):
-                return CustomFundState()
-            else:
-                return None
+        if source is None:
+            return CustomFundState()
         else:
             FUND_CONF = create_conf(ret, FUND_ID)
             FUND_CONF.data["fund_source"] = source
-            print('{} ({})'.format(
-                FUND_CONF.data["fund_name"], FUND_CONF.data["_id"]))
+            print('{} ({})'.format(FUND_CONF.data["fund_name"], FUND_CONF.data["_id"]))
+            if FUND_CONF.data["last_update"]:
+                print('持仓截至: ' + FUND_CONF.data["last_update"])
             get_equity_list(FUND_CONF)
             return FinishAddState()
 
@@ -73,21 +74,29 @@ class FinishAddState(State):
 
 class ListingState(State):
     def action(self):
-        global FUND_ID, FUND_CONF, FUND_CONF_PATH
+        global ARGS, FUND_ID, FUND_CONF, FUND_CONF_PATH
 
-        equities, summary, reference = fetch_and_draw(FUND_CONF)
-        if enquiries.confirm('需要输出到 CSV 文件吗?'):
+        if ARGS.csv:
+            equities, summary, reference = fetch_data(FUND_CONF)
             output_csv(FUND_ID.translate(TRANS_TABLE) + '.csv', equities, summary, reference)
+        else:
+            print()
+            with Live(auto_refresh=False) as live:
+                while True:
+                    equities, summary, reference = fetch_data(FUND_CONF)
+                    live.update(get_table(FUND_CONF, equities, summary, reference), refresh=True)
+                    time.sleep(10)
         return None
 
 
 def act(args):
-    global FUND_ID
+    global FUND_ID, ARGS
 
-    if args.proxy:
-        set_equity_proxy(args.proxy)
-        set_fund_proxy(args.proxy)
-    FUND_ID = args.fund_id
+    ARGS = args
+    if ARGS.proxy:
+        set_equity_proxy(ARGS.proxy)
+        set_fund_proxy(ARGS.proxy)
+    FUND_ID = ARGS.fund_id
     state = GetConfigState()
     while state != None:
         state = state.action()

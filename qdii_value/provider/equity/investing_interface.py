@@ -33,8 +33,12 @@ def realtime(ids):
     if len(ids) == 0:
         return []
     res = investing.lists(ids)
-    return None if res is None else [
-        {
+    res_d = investing.lists_detail(ids)
+    if res is None or res_d is None:
+        return None
+    ret = []
+    for i in [{**p[0], **p[1]} for p in zip(res_d, res)]:
+        c = {
             'source_id': i['pair_ID'],
             'name': i['pair_name'],
             'last': Decimal(i['last'].replace(',', '')),
@@ -42,8 +46,14 @@ def realtime(ids):
             'change_percent': Decimal(sign_fix(i['change_percent_val'])),
             'is_open': i['exchange_is_open'],
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
-        } for i in res
-    ]
+        }
+        if not c['is_open'] and 'extended_shown_unixtime' in i.keys() and i['extended_shown_unixtime']:
+            c['after_hour_price'] = Decimal(i['extended_price'])
+            c['after_hour_percent'] = Decimal(i['extended_change_percent'][1:-2])
+            c['after_hour_change'] = Decimal(i['extended_change'])
+            c['after_hour_datetime'] = datetime.fromtimestamp(int(i['extended_shown_unixtime']))
+        ret.append(c)
+    return ret
 
 
 TO_FIX_2 = lambda f: Decimal(f).quantize(Decimal("0.00"))

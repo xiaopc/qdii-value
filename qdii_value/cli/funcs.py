@@ -36,17 +36,22 @@ def create_conf(obj, _id):
 
 
 def get_fund(_id):
-    global FUND_PROVIDER_CN, FUND_PROVIDER_GL
-    ret = None
-    provider = FUND_PROVIDER_CN if _id.isdigit() else FUND_PROVIDER_GL
-    try:
-        for f in provider:
-            ret = f.lists(_id)
-            if ret:
-                return f.__name__.split('.')[-1], ret
-    except:
-        print('查询时出现故障.')
-    return None, None
+    global FUND_PROVIDER
+    options = [i['name'] for i in FUND_PROVIDER]
+    options.append('手动添加')
+    while True:
+        choice = enquiries.choose('上下键选择基金信息源:', options)
+        if choice == '手动添加':
+            return None, None
+        res = FUND_PROVIDER[options.index(choice)]
+        try:
+            ret = res['object'].lists(_id)
+            if ret and len(ret["equities"]) > 0:
+                return res['id'], ret
+            else:
+                print(f"在「{res['name']}」中找不到基金信息.")
+        except:
+            print('查询时出现故障.')
 
 
 def search_equity(default_query=None):
@@ -131,11 +136,14 @@ def red_green(num, fmt):
         return fmt.format(num)
 
 
-def fetch_and_draw(conf):
+def fetch_data(conf):
     equities, summary = processing.fetch(conf.data['equities'])
     reference = processing.single_fetch(
         conf.data['reference']) if conf.data['reference'] else None
+    return equities, summary, reference
 
+
+def get_table(conf, equities, summary, reference):
     caption = '(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime(
         '%Y-%m-%d %H:%M:%S'), conf.data['last_update'])
     table = Table(title=conf.data['fund_name'], 
@@ -184,10 +192,7 @@ def fetch_and_draw(conf):
     remove_col_suffix(rows, 3, '.00')
     remove_col_suffix(rows, 4, '.00')
     [table.add_row(*row) for row in rows]
-    print()
-    console = Console()
-    console.print(table)
-    return equities, summary, reference
+    return table
 
 
 def output_csv(path, equities, summary, reference):

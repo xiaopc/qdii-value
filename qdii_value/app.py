@@ -7,6 +7,7 @@ else:
 
 parser = argparse.ArgumentParser(description='QDII 基金估值计算')
 parser.add_argument('fund_id', type=str, help='基金代码')
+parser.add_argument('--csv', action='store_true', help='保存结果并退出')
 parser.add_argument('--proxy', type=str, help='HTTP 代理 (格式: IP 或域名:端口)')
 
 def main():

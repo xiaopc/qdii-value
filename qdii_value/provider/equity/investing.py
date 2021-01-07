@@ -36,6 +36,11 @@ def lists(pair_ids):
     url = 'get_screen.php?v2=1&skinID=1&include_pair_attr=false&screen_ID=30&pairs_IDs=' + ','.join(map(lambda x: str(x), pair_ids))
     return __get(url)[0]['screen_data']['pairs_additional']
 
+# [{'pair_ID': 23647, 'last': '71.71', 'change_percent_val': 3.18, 'change_val': 2.21, 'change': '+2.21', 'change_precent': '(+3.18%)', 'change_precent_raw': '+3.18', 'extended_price': '70.94', 'extended_change': '-0.77', 'extended_change_percent': '(-1.07%)', 'extended_shown_datetime': '6:08:41', 'extended_shown_unixtime': '1609970921', 'extended_hours_show_data': 'After', 'pair_change_color': '#FF0000', 'extended_change_color': '#0d9d00', 'technical_summary_color': '#0d9d00', 'technical_summary_text': '强力买入', 'localized_last_step_arrow': 'up_red', 'extended_localized_last_step_arrow': 'down_green', 'exchange_is_open': False, 'last_timestamp': 1609966799, 'last_close_value': '71.71', 'open': '71.40', 'bond_coupon': '', 'day_range': '70.90 - 72.41', 'low': '70.9', 'high': '72.41', 'a52_week_range': '29.78 - 72.41', 'a52_week_low': '29.78', 'a52_week_high': '72.41', 'bond_price_range': '-', 'bond_price': '', 'isCrypto': False, 'turnover_volume': '4,844,401', 'avg_volume': '2,114,164', 'volume': '4,844,401', 'formatted_volume': '4,844,401 (2,114,164)'}, }
+def lists_detail(pair_ids):
+    url = 'get_screen.php?skinID=1&screen_ID=30&pairs_IDs=' + ','.join(map(lambda x: str(x), pair_ids))
+    return __get(url)[0]['screen_data']['pairs_additional']
+
 # 21 days most (including this exchange day)
 # [{'start_timestamp': 1608588000000, 'open': 1774.43, 'max': 1777.32, 'min': 1764.84, 'close': 1773.84, 'navigation': 'd'}, ...]
 def history_o(pair_id, limit=21):

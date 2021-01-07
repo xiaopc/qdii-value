@@ -1,7 +1,22 @@
 from . import eastmoney, hsbc, bloomberg
 
-FUND_PROVIDER_CN = [eastmoney, hsbc]
-FUND_PROVIDER_GL = [bloomberg]
+FUND_PROVIDER = [
+    {
+        'id': 'eastmoney',
+        'name': '天天基金(东方财富)',
+        'object': eastmoney
+    },
+    {
+        'id': 'hsbc',
+        'name': '汇丰银行',
+        'object': hsbc
+    },
+    {
+        'id': 'bloomberg',
+        'name': 'Bloomberg(非内地基金)',
+        'object': bloomberg
+    },
+]
 
 def set_fund_proxy(proxy):
     bloomberg.proxies = {'https': 'http://' + proxy}
