@@ -13,9 +13,11 @@ def set_proxy(proxy):
 
 def search(kw, _type=None):
     res = investing.search(kw)
+    if res is None:
+        return None
     if _type:
         res = list(filter(lambda i: _type in i['search_main_subtext'], res))
-    return None if res is None else [
+    return [
         {
             'source_id': i['pair_ID'],
             'code': i['search_main_text'],

@@ -76,7 +76,9 @@ class ListingState(State):
     def action(self):
         global ARGS, FUND_ID, FUND_CONF, FUND_CONF_PATH
 
-        if ARGS.csv:
+        if ARGS.history:
+            history_csv(FUND_ID.translate(TRANS_TABLE) + f'_{ARGS.history}d.csv', FUND_CONF, ARGS.history)
+        elif ARGS.csv:
             equities, summary, reference = fetch_data(FUND_CONF)
             output_csv(FUND_ID.translate(TRANS_TABLE) + '.csv', equities, summary, reference)
         else:

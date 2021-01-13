@@ -210,3 +210,25 @@ def output_csv(path, equities, summary, reference):
             writer.writerow({'code': reference['name'], 'name': '', 'weight': '', 'last': reference['last'],
                              'change': reference['change'], 'change_percent': reference['change_percent']})
         print('已保存至 ' + path + '.')
+
+
+def history_csv(path, conf, limit):
+    hs = processing.fetch_history(conf.data['equities'], limit=limit)
+    r = {}
+    for equity in hs:
+        for i in range(len(equity['history']) - 1):
+            cur, las = equity['history'][i + 1], equity['history'][i]
+            if cur['date'] not in r.keys():
+                r[cur['date']] = {}
+            r[cur['date']][equity['name']] = (cur['close'] / las['close'] - 1)
+    t = []
+    for date, data in r.items():
+        i = data.copy()
+        i['date'] = date
+        t.append(i)
+    with open(path, 'w', newline='') as csvfile:
+        fieldnames = ['date'] + [equity['name'] for equity in hs]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        writer.writerows(t)
+        print('已保存至 ' + path + '.')

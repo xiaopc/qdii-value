@@ -28,7 +28,7 @@ Python 3.6+
 
 ```bash
 # 使用 pip 安装 (加 -e 参数为本地开发模式)
-$ pip install '当前目录'
+$ pip install --upgrade '当前目录'
 # 使用 setuptools 安装 (develop 为本地开发模式，--record 输出文件列表)
 $ python setup.py install
 ```
@@ -40,8 +40,10 @@ $ python setup.py install
 ### 命令行界面 CLI
 
 ```bash
-# 启动脚本
-$ qdii-value 基金代码
+# 实时行情
+$ qdii-value 基金代码 # 加参数 --csv 保存至文件
+# 统计历史行情
+$ qdii-value 基金代码 --history 天数
 # 更多参数请参见帮助
 $ qdii-value --help
 ```
