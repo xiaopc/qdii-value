@@ -154,8 +154,7 @@ def history_cnhk(url, code, limit=21):
             DECOMPRESSER_JS = js.read()
     with STPyV8.JSContext() as ctxt:
         decompress = ctxt.eval(DECOMPRESSER_JS)
-        compressed = requests.get(url.format(code)).text.split('\n')[
-            0].split('\"')[1]
+        compressed = requests.get(url.format(code)).text.split('\n')[0].split('\"')[1]
         ret = json.loads(decompress(compressed))
         return [{
             'date': i['date'],
@@ -220,6 +219,7 @@ def test():
     # print(search('usdcnh'))
 
     print(realtime('31#00358', '11#sz000002', '41#bili', '71#usdcnh'))
+    print(history('11#sh688111'))
     print(history('71#usdcnh'))
 
 

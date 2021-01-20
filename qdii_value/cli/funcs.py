@@ -35,23 +35,27 @@ def create_conf(obj, _id):
     return c
 
 
-def get_fund(_id):
+def get_fund_provider(provider=None):
     global FUND_PROVIDER
-    options = [i['name'] for i in FUND_PROVIDER]
-    options.append('手动添加')
-    while True:
+    if provider:
+        f = list(filter(lambda p: p['id'] == provider, FUND_PROVIDER))
+        return f[0] if len(f) == 1 else None
+    else:
+        options = [i['name'] for i in FUND_PROVIDER]
+        options.append('手动添加')
         choice = enquiries.choose('上下键选择基金信息源:', options)
-        if choice == '手动添加':
-            return None, None
-        res = FUND_PROVIDER[options.index(choice)]
-        try:
-            ret = res['object'].lists(_id)
-            if ret and len(ret["equities"]) > 0:
-                return res['id'], ret
-            else:
-                print(f"在「{res['name']}」中找不到基金信息.")
-        except:
-            print('查询时出现故障.')
+        return False if choice == '手动添加' else FUND_PROVIDER[options.index(choice)]
+
+
+def get_fund(_id, provider):
+    try:
+        ret = provider['object'].lists(_id)
+        if ret and len(ret["equities"]) > 0:
+            return ret
+        print(f"在「{provider['name']}」中找不到基金信息.")
+    except Exception as e:
+        print(f'查询时出现故障: {e}')
+    return None
 
 
 def search_equity(default_query=None):

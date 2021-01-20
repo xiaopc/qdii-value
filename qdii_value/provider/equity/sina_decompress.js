@@ -263,7 +263,7 @@ function sina_decompress (t) {
                         !(16 & a))
                         break
                 }
-            r.date = x(n.d).toISOString().split('T')[0]; // modify;
+            r.date = x(n.d).toISOString().split('T')[0];  // modify;
             for (o in {
                 v: 0,
                 d: 0
@@ -406,7 +406,7 @@ function sina_decompress (t) {
                         o = (i.b_sep ? 191 : 185) >> l & 1,
                         a["v_" + d] = w([3 * i["l_" + d]], [o])[0];
                 n = {
-                    date: S(a.d)
+                    date: S(a.d).toISOString().split('T')[0]  // modify
                 },
                     a.p && (n.prevclose = A(a.p, i.p_p)),
                     i.b_sep ? (n.open = A(i.u_o += a.v_o, i.p_p),
