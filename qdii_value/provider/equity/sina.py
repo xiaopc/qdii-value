@@ -100,6 +100,7 @@ REALTIME_FIELDS = {
            ('', RET_N), ('', RET_N), ('', RET_N), ('date', str)
            ]
 }
+REALTIME_FIELDS['33'] = REALTIME_FIELDS['31']
 
 
 def realtime_api(*l):
@@ -112,6 +113,7 @@ def parse_symbol_11(symbol): return symbol
 def parse_symbol_31(symbol): return 'rt_hk%s' % (symbol.upper())
 def parse_symbol_41(symbol): return 'gb_%s' % (symbol.lower())
 def parse_symbol_71(symbol): return 'fx_s%s' % (symbol.lower())
+parse_symbol_33 = parse_symbol_31
 
 
 def parse_symbol(symbol):
@@ -198,6 +200,7 @@ def history_fx(code, limit=21):
 HISTORY_PROCESSER = {
     '11': partial(history_cnhk, HISTORY_URL_CN),
     '31': partial(history_cnhk, HISTORY_URL_HK),
+    '33': partial(history_cnhk, HISTORY_URL_HK),
     '41': history_us,
     '71': history_fx,
 }

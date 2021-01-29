@@ -7,7 +7,7 @@ with open(os.path.join(os.path.dirname(__file__), 'requirements.txt')) as f:
 
 setup(
     name = 'qdii_value',
-    version = '0.3.10',
+    version = '0.3.11',
     description = '计算 QDII 基金估值',
     url = 'https://github.com/xiaopc/qdii-value',
     author = 'xiaopc',

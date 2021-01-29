@@ -7,7 +7,7 @@ DATEPARSER_SETTINGS = {'TIMEZONE': 'Asia/Shanghai',
                        'RETURN_AS_TIMEZONE_AWARE': True}
 
 
-def search(kw, _type=['11', '31', '41']):
+def search(kw, _type=['11', '31', '33', '41']):
     return [
         {
             'source_id': i['code_full'],

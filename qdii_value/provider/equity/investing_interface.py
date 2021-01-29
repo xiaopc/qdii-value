@@ -49,7 +49,7 @@ def realtime(ids):
             'is_open': i['exchange_is_open'],
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
         }
-        if not c['is_open'] and 'extended_shown_unixtime' in i.keys() and i['extended_shown_unixtime']:
+        if not c['is_open'] and i['extended_hours_show_data'] != 'No':
             c['after_hour_price'] = Decimal(i['extended_price'])
             c['after_hour_percent'] = Decimal(i['extended_change_percent'][1:-2])
             c['after_hour_change'] = Decimal(i['extended_change'])
