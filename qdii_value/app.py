@@ -1,4 +1,4 @@
-import argparse, traceback
+import argparse
 
 if __package__:
     from .cli.main import act
@@ -13,11 +13,7 @@ parser.add_argument('--history', type=int, help='保存持仓历史数据 (参�
 parser.add_argument('--proxy', type=str, help='HTTP 代理 (格式: IP 或域名:端口)')
 
 def main():
-    args = parser.parse_args()
-    try:
-        act(args)
-    except:
-        traceback.print_exc()
+    act(parser.parse_args())
 
 if __name__ == '__main__':
     main()

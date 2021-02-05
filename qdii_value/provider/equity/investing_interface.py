@@ -42,14 +42,14 @@ def realtime(ids):
     for i in [{**p[0], **p[1]} for p in zip(res_d, res)]:
         c = {
             'source_id': i['pair_ID'],
-            'name': i['pair_name'],
+            'source_name': i['pair_name'],
             'last': Decimal(i['last'].replace(',', '')),
             'change': Decimal(sign_fix(i['change_val'])),
             'change_percent': Decimal(sign_fix(i['change_percent_val'])),
             'is_open': i['exchange_is_open'],
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
         }
-        if not c['is_open'] and i['extended_hours_show_data'] != 'No':
+        if c['is_open'] is False and i['extended_hours_show_data'] != 'No':
             c['after_hour_price'] = Decimal(i['extended_price'])
             c['after_hour_percent'] = Decimal(i['extended_change_percent'][1:-2])
             c['after_hour_change'] = Decimal(i['extended_change'])

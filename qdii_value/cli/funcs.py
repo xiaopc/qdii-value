@@ -1,6 +1,6 @@
 import sys
 import os
-import enquiries
+import inquirer
 from rich import box
 from rich.console import Console
 from rich.table import Column, Table
@@ -41,10 +41,9 @@ def get_fund_provider(provider=None):
         f = list(filter(lambda p: p['id'] == provider, FUND_PROVIDER))
         return f[0] if len(f) == 1 else None
     else:
-        options = [i['name'] for i in FUND_PROVIDER]
-        options.append('手动添加')
-        choice = enquiries.choose('上下键选择基金信息源:', options)
-        return False if choice == '手动添加' else FUND_PROVIDER[options.index(choice)]
+        options = [(i['name'], i) for i in FUND_PROVIDER]
+        options.append(('手动添加', False))
+        return inquirer.list_input('上下键选择基金信息源', choices=options)
 
 
 def get_fund(_id, provider):
@@ -69,10 +68,8 @@ def search_equity(default_query=None):
             print('已跳过.')
             return None
         elif query == 'q':
-            options = ['{} ({})'.format(p['name'], p['id'])
-                       for p in EQUITY_PROVIDER]
-            choice = enquiries.choose('上下键选择行情信息源:', options)
-            CUR_EQ_PROVIDER = EQUITY_PROVIDER[options.index(choice)]
+            options = [(p['name'], p) for p in EQUITY_PROVIDER]
+            CUR_EQ_PROVIDER = inquirer.list_input('上下键选择行情信息源', choices=options)
             continue
         else:
             try:
@@ -83,14 +80,9 @@ def search_equity(default_query=None):
             if search_res is None or len(search_res) == 0:
                 print('未搜索到结果.')
                 continue
-            options = list(map(lambda r: '{} | {} ({})'.format(
-                r['type'], r['name'], r['code']), search_res[:10]))
-            options.append('重新搜索')
-            choice = enquiries.choose('上下键选择对应的项目:', options)
-            if choice == '重新搜索':
-                continue
-            print('选中: {}'.format(choice))
-            data = search_res[options.index(choice)]
+            options = [(f"{r['type']} | {r['name']} ({r['code']})", r) for r in search_res[:10]]
+            options.append(('重新搜索', None))
+            data = inquirer.list_input('上下键选择对应的项目', choices=options, default=0)
     return {'source': CUR_EQ_PROVIDER['id'], 'source_id': data['source_id'], 'name': data['name'], 'code': data['code']}
 
 

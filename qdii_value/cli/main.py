@@ -3,7 +3,7 @@ import os
 import string
 import time
 import threading
-import enquiries
+import inquirer
 from rich.live import Live
 from rich.console import Console
 from datetime import datetime
@@ -78,7 +78,7 @@ class FinishAddState(State):
     def action(self):
         global FUND_ID, FUND_CONF, FUND_CONF_PATH
 
-        if enquiries.confirm('需要增加参考指数吗?'):
+        if inquirer.confirm(message='需要增加参考指数吗?'):
             FUND_CONF.data['reference'] = search_equity()
         ret = FUND_CONF.save(FUND_CONF_PATH.format(FUND_ID.translate(TRANS_TABLE)))
         print(f'配置已保存至 {ret}, 更新持仓表可添加 --update 参数.')

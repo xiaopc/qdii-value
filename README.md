@@ -28,10 +28,16 @@ Python 3.6+
 
 ```bash
 # 使用 pip 安装 (加 -e 参数为本地开发模式)
-$ pip install --upgrade '当前目录'
+$ pip install --upgrade .
 # 使用 setuptools 安装 (develop 为本地开发模式，--record 输出文件列表)
 $ python setup.py install
 ```
+
+Windows 用户若 Python < 3.9 可能需要手动安装 `backports.zoneinfo`
+
+如需新浪源 A/H 股历史数据，需要手动安装 [STPyV8](https://github.com/area1/stpyv8) 包（实时数据不需要）
+
+通过 whl 包安装若遇到 .so 找不到等报错，则需补全系统依赖，如 libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev
 
 ## 使用
 
@@ -63,11 +69,8 @@ if c.data['reference']:
     # 单 equity 实时
     reference = processing.single_fetch(c.data['reference'])
 
-# 多 equity 历史 K 线
+# 多 equity 历史行情
 # 提示：接口定义可能在后续版本中有所变动
-# 新浪源 A/H 股需要手动安装 STPyV8 包：https://github.com/area1/stpyv8
-# 通过 whl 包安装若遇到 .so 找不到等报错，则需补全依赖
-# 如 libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev
 # 新浪源美股仅提供最近 140 天数据
 history = processing.fetch_history(c.data['equities'], limit=21)
 # investing 源推荐使用指定日期接口

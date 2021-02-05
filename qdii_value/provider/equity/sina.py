@@ -146,7 +146,7 @@ def TO_FIX_2(f): return Decimal(f).quantize(Decimal("0.00"))
 
 # till last exchange day
 def history_cnhk(url, code, limit=21):
-    global DECOMPRESSER_JS, HISTORY_URL_HK
+    global DECOMPRESSER_JS
     try:
         import STPyV8
     except ImportError:
@@ -208,6 +208,8 @@ HISTORY_PROCESSER = {
 
 def history(symbol, **kwargs):
     typ, code = symbol.split('#')
+    if typ == '31' or typ == '33':
+        code = code.upper()
     return HISTORY_PROCESSER[typ](code, **kwargs)
 
 # +----------+

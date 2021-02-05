@@ -26,7 +26,7 @@ def realtime(ids):
     for i in res:
         c = {
             'source_id': i['code_full'],
-            'name': i['name'],
+            'source_name': i['name'],
             'last': i['closing'],
             'change': i['delta'] if 'delta' in i.keys() else i['closing'] - i['last_closing'],
         }

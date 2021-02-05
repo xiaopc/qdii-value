@@ -1,13 +1,12 @@
 beautifulsoup4>=4.9.1
-console-menu==0.6.0
 cjkwrap==2.2
 dateparser==1.0.0
 demjson>=2.2.4
 python-dateutil>=2.8.1
-enquiries==0.1.0
+inquirer==2.7.0
 lxml>=4.6.1
 pytz>=2018.9
 requests>=2.21.0
 rich==9.5.1
-tzlocal>=2.0.0
+tzlocal>=2.1
 wcwidth==0.2.5
