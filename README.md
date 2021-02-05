@@ -37,7 +37,7 @@ Windows 用户若 Python < 3.9 可能需要手动安装 `backports.zoneinfo`
 
 如需新浪源 A/H 股历史数据，需要手动安装 [STPyV8](https://github.com/area1/stpyv8) 包（实时数据不需要）
 
-通过 whl 包安装若遇到 .so 找不到等报错，则需补全系统依赖，如 libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev
+通过 whl 安装 `STPyV8` 若遇到 .so 找不到等报错，则需补全系统依赖，如 `libboost-all-dev` `libboost-system-dev` `libboost-filesystem-dev` `libboost-thread-dev` 等
 
 ## 使用
 
