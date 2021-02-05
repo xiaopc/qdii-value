@@ -27,8 +27,10 @@
 Python 3.6+
 
 ```bash
-# 使用 pip 安装 (加 -e 参数为本地开发模式)
-$ pip install --upgrade .
+# pip 直接安装
+$ pip install --upgrade git+https://github.com/xiaopc/qdii-value.git#egg=qdii_value
+# pip 本地开发模式
+$ pip install -e .
 # 使用 setuptools 安装 (develop 为本地开发模式，--record 输出文件列表)
 $ python setup.py install
 ```
