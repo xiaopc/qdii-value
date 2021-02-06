@@ -35,7 +35,7 @@ $ pip install -e .
 $ python setup.py install
 ```
 
-Windows 用户若 Python < 3.9 可能需要手动安装 `backports.zoneinfo`
+Windows 用户若 Python < 3.9 可能需要手动安装 `backports.zoneinfo` 和 `tzdata`
 
 如需新浪源 A/H 股历史数据，需要手动安装 [STPyV8](https://github.com/area1/stpyv8) 包（实时数据不需要）
 
