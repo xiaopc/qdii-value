@@ -50,21 +50,21 @@ def combine_summary(d):
     equities = list(chain(*d.values()))
     for e in equities:
         e['weight'] = Decimal(e['weight'])
+        e['is_today'] = e['time'] > TRADE_TODAY
     equities.sort(key=lambda e: e['weight'], reverse=True)
 
-    latest = datetime.min.replace(tzinfo=tz_sh)
-    total_w, total_p, today_w, today_p = Decimal(
-        0), Decimal(0), Decimal(0), Decimal(0)
-    for e in equities:
-        total_p += e['weight'] * e['change_percent'] / 100
-        total_w += e['weight']
-        latest = max(e['time'], latest)
-        if e['time'] >= TRADE_TODAY:
-            today_p += e['weight'] * e['change_percent'] / 100
-            today_w += e['weight']
-    total_p /= total_w / 100
-    if today_w > 0:
+    total_w = sum([e['weight'] for e in equities])
+    today_equities = list(filter(lambda e: e['is_today'], equities))
+    if len(today_equities) > 0:
+        today_w = Decimal(sum([e['weight'] for e in today_equities]))
+        today_p = Decimal(sum([e['weight'] * e['change_percent'] / 100 for e in today_equities]))
+        total_p = today_p / (total_w / 100)
         today_p /= today_w / 100
+    else:
+        total_p = Decimal(sum([e['weight'] * e['change_percent'] / 100 for e in equities]))
+        total_p /= total_w / 100
+        today_w, today_p = Decimal(0), Decimal(0)
+    latest = max([e['time'] for e in equities])
 
     return equities, {
         'last_update': latest,

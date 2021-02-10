@@ -171,11 +171,19 @@ def get_table(conf, equities, summary, reference):
     table.add_column("涨跌", justify="right", no_wrap=True,  footer=footrt_change)
     table.add_column("幅度", justify="right", no_wrap=True,  footer=footer_precent)
 
+    def parse_name(i):
+        if i['is_open']:
+            return '\U0001f504' + i['name']
+        elif not i['is_today']:
+            return '\U0001f4c5' + i['name']
+        else:
+            return i['name']
+
     rows = []
     for i in equities:
         rows.append([
             i['code'],
-            ('\U0001f504' if i['is_open'] else '') + i['name'],
+            parse_name(i),
             '{:.2f}%'.format(i['weight']),
             '{:.2f}'.format(i['last']),
             red_green(i['change'], '{:+.2f}'),
