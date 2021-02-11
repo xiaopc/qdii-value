@@ -174,7 +174,7 @@ def get_table(conf, equities, summary, reference):
     def parse_name(i):
         if i['is_open']:
             return '\U0001f504' + i['name']
-        elif not i['is_today']:
+        elif i['is_past']:
             return '\U0001f4c5' + i['name']
         else:
             return i['name']

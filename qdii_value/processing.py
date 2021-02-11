@@ -48,9 +48,13 @@ def get_history_from_provider(provider, equities, **kwargs):
 
 def combine_summary(d):
     equities = list(chain(*d.values()))
+
+    latest = max([e['time'] for e in equities])
+    last_day = latest - timedelta(days=1)
     for e in equities:
         e['weight'] = Decimal(e['weight'])
         e['is_today'] = e['time'] > TRADE_TODAY
+        e['is_past'] = e['time'] < last_day
     equities.sort(key=lambda e: e['weight'], reverse=True)
 
     total_w = sum([e['weight'] for e in equities])
@@ -61,10 +65,10 @@ def combine_summary(d):
         total_p = today_p / (total_w / 100)
         today_p /= today_w / 100
     else:
-        total_p = Decimal(sum([e['weight'] * e['change_percent'] / 100 for e in equities]))
+        npast_equities = list(filter(lambda e: not e['is_past'], equities))
+        total_p = Decimal(sum([e['weight'] * e['change_percent'] / 100 for e in npast_equities]))
         total_p /= total_w / 100
         today_w, today_p = Decimal(0), Decimal(0)
-    latest = max([e['time'] for e in equities])
 
     return equities, {
         'last_update': latest,
