@@ -14,6 +14,12 @@ from confs import Config, _equity
 
 
 CUR_EQ_PROVIDER = EQUITY_PROVIDER[0]
+INQUIRER_THEME = inquirer.themes.load_theme_from_dict({
+    "List": {
+        "selection_color": "black_on_white",
+    }
+})
+INQUIRER_RENDER = inquirer.render.console.ConsoleRender(theme=INQUIRER_THEME)
 
 
 def clear_line():
@@ -43,7 +49,7 @@ def get_fund_provider(provider=None):
     else:
         options = [(i['name'], i) for i in FUND_PROVIDER]
         options.append(('手动添加', False))
-        return inquirer.list_input('上下键选择基金信息源', choices=options)
+        return inquirer.list_input('上下键选择基金信息源', choices=options, render=INQUIRER_RENDER)
 
 
 def get_fund(_id, provider):
@@ -69,7 +75,7 @@ def search_equity(default_query=None):
             return None
         elif query == 'q':
             options = [(p['name'], p) for p in EQUITY_PROVIDER]
-            CUR_EQ_PROVIDER = inquirer.list_input('上下键选择行情信息源', choices=options)
+            CUR_EQ_PROVIDER = inquirer.list_input('上下键选择行情信息源', choices=options, render=INQUIRER_RENDER)
             continue
         else:
             try:
@@ -82,7 +88,7 @@ def search_equity(default_query=None):
                 continue
             options = [(f"{r['type']} | {r['name']} ({r['code']})", r) for r in search_res[:10]]
             options.append(('重新搜索', None))
-            data = inquirer.list_input('上下键选择对应的项目', choices=options, default=0)
+            data = inquirer.list_input('上下键选择对应的项目', choices=options, default=0, render=INQUIRER_RENDER)
     return {'source': CUR_EQ_PROVIDER['id'], 'source_id': data['source_id'], 'name': data['name'], 'code': data['code']}
 
 
