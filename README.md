@@ -47,6 +47,10 @@ Windows 用户若 Python < 3.9 可能需要手动安装 `backports.zoneinfo` 和
 
 ### 命令行界面 CLI
 
+建议使用现代终端 (Terminal) 以获得更佳的使用体验
+
+Windows 用户推荐 [Windows Terminal](https://aka.ms/terminal)
+
 ```bash
 # 实时行情
 $ qdii-value 基金代码 # 加参数 --csv 保存至文件
