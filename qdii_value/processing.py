@@ -9,12 +9,7 @@ from decimal import Decimal
 
 # 以每日此时间前收盘作为交易日分界
 TRADING_START_HOUR = 8
-
 tz_sh = tz.gettz('Asia/Shanghai')
-now = datetime.now(tz=tz_sh)
-zero_today = now - timedelta(hours=now.hour, minutes=now.minute,
-                             seconds=now.second, microseconds=now.microsecond)
-TRADE_TODAY = zero_today + timedelta(hours=TRADING_START_HOUR)
 
 
 def divide_by_provider(equities):
@@ -47,13 +42,24 @@ def get_history_from_provider(provider, equities, **kwargs):
 
 
 def combine_summary(d):
-    equities = list(chain(*d.values()))
+    now = datetime.now(tz=tz_sh)
+    zero_today = now - timedelta(hours=now.hour, minutes=now.minute,
+                                seconds=now.second, microseconds=now.microsecond)
+    trade_today = zero_today + timedelta(hours=TRADING_START_HOUR)
+    if now < trade_today:
+        trade_today -= timedelta(days=1)
 
+    equities = list(chain(*d.values()))
     latest = max([e['time'] for e in equities])
-    last_day = latest - timedelta(days=1)
+    if latest.weekday() == 0:
+        last_day = latest - timedelta(days=3, hours=latest.hour - TRADING_START_HOUR, minutes=latest.minute,
+                             seconds=latest.second, microseconds=latest.microsecond)
+    else:
+        last_day = latest - timedelta(days=1, hours=latest.hour - TRADING_START_HOUR, minutes=latest.minute,
+                             seconds=latest.second, microseconds=latest.microsecond)
     for e in equities:
         e['weight'] = Decimal(e['weight'])
-        e['is_today'] = e['time'] > TRADE_TODAY
+        e['is_today'] = e['time'] > trade_today
         e['is_past'] = e['time'] < last_day
     equities.sort(key=lambda e: e['weight'], reverse=True)
 
