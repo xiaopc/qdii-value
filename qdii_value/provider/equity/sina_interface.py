@@ -29,6 +29,7 @@ def realtime(ids):
             'source_name': i['name'],
             'last': i['closing'],
             'change': i['delta'] if 'delta' in i.keys() else i['closing'] - i['last_closing'],
+            'volume': i['volume'] if 'volume' in i.keys() else None,
         }
         if 'datetime' in i.keys():
             c['time'] = dateparser.parse(i['datetime']).astimezone(
@@ -36,7 +37,13 @@ def realtime(ids):
         else:
             c['time'] = dateparser.parse(
                 i['date'] + ' ' + i['time'], settings=DATEPARSER_SETTINGS)
-        c['change_percent'] = i['percent'] if 'percent' in i.keys() else c['change'] / i['last_closing'] * 100
+        if (c['last'] == 0):
+            c['change'] = 0
+            c['change_percent'] = 0
+        elif 'percent' in i.keys():
+            c['change_percent'] = i['percent']
+        else:
+            c['change_percent'] = c['change'] / i['last_closing'] * 100
         ago = dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
         c['time'] = c['time'].replace(year=ago.year) # temp fix for new year
         c['is_open'] = c['time'] > dateparser.parse('2 minutes ago', settings=DATEPARSER_SETTINGS)

@@ -41,22 +41,19 @@ def get_history_from_provider(provider, equities, **kwargs):
     return items
 
 
+def get_trade_day(dt):
+    return datetime(dt.year, dt.month, dt.day, hour=TRADING_START_HOUR, minute=0, second=0, microsecond=0, tzinfo=tz_sh)
+
+
 def combine_summary(d):
     now = datetime.now(tz=tz_sh)
-    zero_today = now - timedelta(hours=now.hour, minutes=now.minute,
-                                seconds=now.second, microseconds=now.microsecond)
-    trade_today = zero_today + timedelta(hours=TRADING_START_HOUR)
+    trade_today = get_trade_day(now)
     if now < trade_today:
         trade_today -= timedelta(days=1)
 
     equities = list(chain(*d.values()))
     latest = max([e['time'] for e in equities])
-    if latest.weekday() == 0:
-        last_day = latest - timedelta(days=3, hours=latest.hour - TRADING_START_HOUR, minutes=latest.minute,
-                             seconds=latest.second, microseconds=latest.microsecond)
-    else:
-        last_day = latest - timedelta(days=1, hours=latest.hour - TRADING_START_HOUR, minutes=latest.minute,
-                             seconds=latest.second, microseconds=latest.microsecond)
+    last_day = get_trade_day(latest) - timedelta(days=3 if latest.weekday() == 0 else 1)
     for e in equities:
         e['weight'] = Decimal(e['weight'])
         e['is_today'] = e['time'] > trade_today
@@ -89,11 +86,13 @@ def single_fetch(equity):
     d = dict([(p['id'], p) for p in EQUITY_PROVIDER])
     return get_data_from_provider(d[equity['source']], [equity])[0]
 
+
 def fetch(equities):
     d = divide_by_provider(equities)
     for provider in d:
         d[provider] = get_data_from_provider(*d[provider])
     return combine_summary(d)
+
 
 def fetch_history(equities, **kwargs):
     d = divide_by_provider(equities)

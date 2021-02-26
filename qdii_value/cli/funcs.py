@@ -155,26 +155,26 @@ def get_table(conf, equities, summary, reference):
     footer_name = '总计'
     footer_weight = '{:.2f}%'.format(summary['total_weight'])
     footer_current = ''
-    footrt_change = ''
+    footer_change = ''
     footer_precent = red_green(summary['total_percent'], '{:+.2f}%')
     if summary['today_weight'] > 0 and summary['today_weight'] != summary['total_weight']:
         footer_name += '\n今日交易'
         footer_weight += '\n' + '{:.2f}%'.format(summary['today_weight'])
         footer_current += '\n'
-        footrt_change += '\n'
+        footer_change += '\n'
         footer_precent += '\n' + red_green(summary['today_percent'], '{:+.2f}%')
     if reference:
         footer_name += '\n' + reference['name']
         footer_weight += '\n'
         footer_current += '\n' + '{:.2f}'.format(reference['last'])
-        footrt_change += '\n' + red_green(reference['change'], '{:+.2f}')
+        footer_change += '\n' + red_green(reference['change'], '{:+.2f}')
         footer_precent += '\n' + red_green(reference['change_percent'], '{:+.2f}%')
 
     table.add_column("代码", justify="right", no_wrap=True)
     table.add_column("名称", justify="left",  no_wrap=False, footer=footer_name)
     table.add_column("权重", justify="right", no_wrap=True,  footer=footer_weight)
     table.add_column("当前", justify="right", no_wrap=True,  footer=footer_current)
-    table.add_column("涨跌", justify="right", no_wrap=True,  footer=footrt_change)
+    table.add_column("涨跌", justify="right", no_wrap=True,  footer=footer_change)
     table.add_column("幅度", justify="right", no_wrap=True,  footer=footer_precent)
 
     def parse_name(i):

@@ -46,6 +46,7 @@ def realtime(ids):
             'last': Decimal(i['last'].replace(',', '')),
             'change': Decimal(sign_fix(i['change_val'])),
             'change_percent': Decimal(sign_fix(i['change_percent_val'])),
+            'volume': Decimal(i['volume'].replace(',', '')) if 'volume' in i.keys() else None,
             'is_open': i['exchange_is_open'],
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
         }
