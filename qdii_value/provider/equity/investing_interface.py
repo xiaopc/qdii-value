@@ -71,6 +71,6 @@ def history(pair_id, limit=21):
         'high': TO_FIX_2(i[2]),
         'low' : TO_FIX_2(i[3]),
         'close': TO_FIX_2(i[4]),
-        'volume': TO_FIX_2(i[5]) if i[5].isnumeric() else None,
+        'volume': TO_FIX_2(i[5]) if not isinstance(i[5], str) or i[5].isnumeric() else None,
     } for i in investing.history(pair_id, int(start.timestamp()), int(now.timestamp()))]
     return resp[-limit:]
