@@ -27,7 +27,8 @@ def search(kw, _type=None):
     ]
 
 
-def sign_fix(s): return s[1:] if s.startswith('+-') else s
+def sign_fix(s): 
+    return s[1:] if s.startswith('+-') else s
 
 
 def realtime(ids):
@@ -59,7 +60,8 @@ def realtime(ids):
     return ret
 
 
-TO_FIX_2 = lambda f: Decimal(f).quantize(Decimal("0.00"))
+def TO_FIX_2(f): 
+    return Decimal(f).quantize(Decimal("0.00"))
 
 
 def history(pair_id, limit=21):
@@ -69,7 +71,7 @@ def history(pair_id, limit=21):
         'date': datetime.fromtimestamp(int(i[0])).strftime('%Y-%m-%d'),
         'open': TO_FIX_2(i[1]),
         'high': TO_FIX_2(i[2]),
-        'low' : TO_FIX_2(i[3]),
+        'low': TO_FIX_2(i[3]),
         'close': TO_FIX_2(i[4]),
         'volume': TO_FIX_2(i[5]) if not isinstance(i[5], str) or i[5].isnumeric() else None,
     } for i in investing.history(pair_id, int(start.timestamp()), int(now.timestamp()))]

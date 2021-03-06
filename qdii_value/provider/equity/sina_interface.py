@@ -1,6 +1,5 @@
 from . import sina
 import dateparser
-from datetime import datetime, timedelta
 from pytz import timezone
 
 DATEPARSER_SETTINGS = {'TIMEZONE': 'Asia/Shanghai',
@@ -45,8 +44,8 @@ def realtime(ids):
         else:
             c['change_percent'] = c['change'] / i['last_closing'] * 100
         ago = dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
-        c['time'] = c['time'].replace(year=ago.year) # temp fix for new year
-        c['is_open'] = c['time'] > dateparser.parse('2 minutes ago', settings=DATEPARSER_SETTINGS)
+        c['time'] = c['time'].replace(year=ago.year)  # temp fix for new year
+        c['is_open'] = c['time'] > dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
         if not c['is_open'] and 'after_hour_percent' in i.keys():
             c['after_hour_price'] = i['after_hour_price']
             c['after_hour_percent'] = i['after_hour_percent']

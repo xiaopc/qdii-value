@@ -2,15 +2,14 @@ import sys
 import os
 import inquirer
 from rich import box
-from rich.console import Console
-from rich.table import Column, Table
+from rich.table import Table
 import csv
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import processing
 from provider.equity import *
 from provider.fund import *
-from confs import Config, _equity
+from confs import Config
 
 
 CUR_EQ_PROVIDER = EQUITY_PROVIDER[0]
@@ -124,10 +123,11 @@ def custom_equities():
 
 
 def remove_col_suffix(table, col, suffix):
-    l = len(list(filter(lambda a: a[col].endswith(suffix), table)))
-    if l == len(table):
+    filtered_len = len(list(filter(lambda a: a[col].endswith(suffix), table)))
+    if filtered_len == len(table):
         for row in table:
             row[col] = row[col][:-len(suffix)]
+
 
 def red_green(num, fmt):
     if num > 0:
@@ -146,8 +146,8 @@ def fetch_data(conf):
 
 
 def get_table(conf, equities, summary, reference):
-    caption = '(报价截至 {}, 持仓截至 {})\n'.format(summary['last_update'].strftime(
-        '%Y-%m-%d %H:%M:%S'), conf.data['last_update'])
+    last_update_f = summary['last_update'].strftime('%Y-%m-%d %H:%M:%S')
+    caption = '(报价截至 {}, 持仓截至 {})\n'.format(last_update_f, conf.data['last_update'])
     table = Table(title=conf.data['fund_name'], 
                   caption=caption, caption_style='white', caption_justify='right',
                   box=box.ROUNDED, show_footer=True)

@@ -1,5 +1,8 @@
 # qdii-value
 
+![License](https://img.shields.io/github/license/xiaopc/qdii-value)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fxiaopc%2Fqdii-value.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fxiaopc%2Fqdii-value?ref=badge_shield)
+
 估算 QDII 基金的净值
 
 ## 注意

@@ -2,14 +2,14 @@
 
 
 import requests
-import datetime
 from functools import partial
 from decimal import Decimal
 import os
 import json
 
 
-def RET_N(a): return None
+def RET_N(a): 
+    return None
 
 
 # +----------+
@@ -46,6 +46,7 @@ def search(kw, types=[]):
         r['type'] = SEARCH_TYPES.get(r['type'])
         results.append(r)
     return results
+
 
 # +----------+
 #   realtime
@@ -103,16 +104,28 @@ REALTIME_FIELDS = {
 REALTIME_FIELDS['33'] = REALTIME_FIELDS['31']
 
 
-def realtime_api(*l):
-    raw = requests.get(REALTIME_URL % (','.join(l),)).text
+def realtime_api(*symbols):
+    raw = requests.get(REALTIME_URL % (','.join(symbols),)).text
     return [line.split('"')[1].split(',')
             for line in raw.split('\n') if line]
 
 
-def parse_symbol_11(symbol): return symbol
-def parse_symbol_31(symbol): return 'rt_hk%s' % (symbol.upper())
-def parse_symbol_41(symbol): return 'gb_%s' % (symbol.lower())
-def parse_symbol_71(symbol): return 'fx_s%s' % (symbol.lower())
+def parse_symbol_11(symbol): 
+    return symbol
+
+
+def parse_symbol_31(symbol): 
+    return 'rt_hk%s' % (symbol.upper())
+
+
+def parse_symbol_41(symbol): 
+    return 'gb_%s' % (symbol.lower())
+
+
+def parse_symbol_71(symbol): 
+    return 'fx_s%s' % (symbol.lower())
+
+
 parse_symbol_33 = parse_symbol_31
 
 
@@ -142,7 +155,11 @@ def realtime(*symbols):
 DECOMPRESSER_JS = None
 HISTORY_URL_HK = 'https://finance.sina.com.cn/stock/hkstock/{}/klc_kl.js'
 HISTORY_URL_CN = 'https://finance.sina.com.cn/realstock/company/{}/hisdata_klc2/klc_kl.js'
-def TO_FIX_2(f): return Decimal(f).quantize(Decimal("0.00"))
+
+
+def TO_FIX_2(f): 
+    return Decimal(f).quantize(Decimal("0.00"))
+
 
 # till last exchange day
 def history_cnhk(url, code, limit=21):
@@ -169,14 +186,18 @@ def history_cnhk(url, code, limit=21):
 
 
 HISTORY_URL_US = 'http://stock.finance.sina.com.cn/usstock/api/json.php/US_MinKService.getDailyK?symbol={}'
-US_DAILY_CONVERT = lambda d, o, h, l, c, v, **kwargs: {
-    'date': str(d),
-    'open': Decimal(o),
-    'high': Decimal(h),
-    'low': Decimal(l),
-    'close': Decimal(c),
-    'volume': Decimal(v),
-}
+
+
+def US_DAILY_CONVERT(d, o, h, l, c, v, **kwargs):
+    return {
+        'date': str(d),
+        'open': Decimal(o),
+        'high': Decimal(h),
+        'low': Decimal(l),
+        'close': Decimal(c),
+        'volume': Decimal(v),
+    }
+
 
 # 139 days
 def history_us(code, limit=21):
@@ -184,13 +205,16 @@ def history_us(code, limit=21):
 
 
 HISTORY_URL_FX = 'https://vip.stock.finance.sina.com.cn/forex/api/jsonp.php/%20/NewForexService.getDayKLine?symbol={}'
-FX_DAILY_CONVERT = lambda d, o, l, h, c, *args: {
-    'date': str(d),
-    'open': Decimal(o),
-    'low': Decimal(l),
-    'high': Decimal(h),
-    'close': Decimal(c),
-}
+
+
+def FX_DAILY_CONVERT(d, o, l, h, c, *args):
+    return {
+        'date': str(d),
+        'open': Decimal(o),
+        'low': Decimal(l),
+        'high': Decimal(h),
+        'close': Decimal(c),
+    }
 
 
 def history_fx(code, limit=21):
@@ -212,10 +236,10 @@ def history(symbol, **kwargs):
         code = code.upper()
     return HISTORY_PROCESSER[typ](code, **kwargs)
 
+
 # +----------+
 #     test
 # +----------+
-
 def test():
     # print(search('腾讯'))
     # print(search('平安'))

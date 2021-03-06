@@ -1,14 +1,14 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open(os.path.join(os.path.dirname(__file__), 'requirements.txt')) as f:
     lines = [line.strip() for line in f]
-    requirements = [line for line in lines if line and not line.startswith('#')]
+    requires = [line for line in lines if line and not line.startswith('#')]
 
 setup(
-    name = 'qdii_value',
-    version = '0.3.19',
-    description = '计算 QDII 基金估值',
+    name='qdii_value',
+    version='0.3.20',
+    description='计算 QDII 基金估值',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -21,22 +21,22 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    url = 'https://github.com/xiaopc/qdii-value',
-    author = 'xiaopc',
-    author_email = 'i@xpc.im',
-    license = 'MIT',
-    packages = [
+    url='https://github.com/xiaopc/qdii-value',
+    author='xiaopc',
+    author_email='i@xpc.im',
+    license='MIT',
+    packages=[
         'qdii_value',
         'qdii_value.cli',
         'qdii_value.provider',
         'qdii_value.provider.equity',
         'qdii_value.provider.fund',
     ],
-    platforms = 'any',
-    zip_safe = False,
-    python_requires = '>=3.6',
-    install_requires = requirements,
-    entry_points = {
+    platforms='any',
+    zip_safe=False,
+    python_requires='>=3.6',
+    install_requires=requires,
+    entry_points={
         'console_scripts': [
             'qdii-value=qdii_value.app:main'
         ]

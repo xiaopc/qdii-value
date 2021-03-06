@@ -4,7 +4,7 @@ else:
     from provider.equity import *
 from datetime import datetime, timedelta
 from dateutil import tz
-from itertools import chain, groupby
+from itertools import chain
 from decimal import Decimal
 
 # 以每日此时间前收盘作为交易日分界

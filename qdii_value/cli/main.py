@@ -1,8 +1,5 @@
-import sys
-import os
 import string
 import time
-import threading
 import inquirer
 from rich.live import Live
 from rich.console import Console
@@ -14,6 +11,7 @@ ARGS = None
 FUND_ID, FUND_CONF = None, None
 FUND_CONF_PATH = '{}.json'
 TRANS_TABLE = ''.maketrans(string.punctuation, '_' * len(string.punctuation))
+
 
 class State:
     def action(self):
@@ -88,7 +86,7 @@ class FinishAddState(State):
 class ListingState(State):
     def action(self):
         global ARGS, FUND_ID, FUND_CONF, FUND_CONF_PATH
-        
+
         if ARGS.history:
             history_csv(FUND_ID.translate(TRANS_TABLE) + f'_{ARGS.history}d.csv', FUND_CONF, ARGS.history)
         elif ARGS.csv:
@@ -112,7 +110,7 @@ def act(args):
             set_fund_proxy(ARGS.proxy)
         FUND_ID = ARGS.fund_id
         state = GetConfigState()
-        while state != None:
+        while state is not None:
             state = state.action()
     except KeyboardInterrupt:
         pass

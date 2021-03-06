@@ -18,5 +18,6 @@ FUND_PROVIDER = [
     },
 ]
 
+
 def set_fund_proxy(proxy):
     bloomberg.proxies = {'https': 'http://' + proxy}

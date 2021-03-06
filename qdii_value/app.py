@@ -12,8 +12,10 @@ parser.add_argument('--csv', action='store_true', help='保存实时行情至 cs
 parser.add_argument('--history', type=int, help='保存持仓历史数据 (参数: 日, 先阅读 README 再使用)')
 parser.add_argument('--proxy', type=str, help='HTTP 代理 (格式: IP 或域名:端口)')
 
+
 def main():
     act(parser.parse_args())
+
 
 if __name__ == '__main__':
     main()
