@@ -10,3 +10,4 @@ requests>=2.21.0
 rich==9.5.1
 tzlocal>=2.1
 wcwidth==0.2.5
+xlrd==2.0.1

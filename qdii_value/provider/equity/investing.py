@@ -13,11 +13,14 @@ headers = {
     'ccode_time': '{:.4f}'.format(time.time()),
 }
 proxies = None
-timeout = 20.
+timeout = 10.
 
 
 def __get(url, get_data=True):
-    rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout).json()
+    rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout)
+    if rsp.status_code != 200:
+        raise Exception('网络错误: ' + rsp.status_code)
+    rsp = rsp.json()
     if 'error' in rsp.keys() and rsp['error']['display_message'] != "":
         raise Exception(rsp['error']['display_message'])
     return rsp['data'] if get_data else rsp

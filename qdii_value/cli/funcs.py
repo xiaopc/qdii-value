@@ -188,7 +188,7 @@ def get_table(conf, equities, summary, reference):
             return '\U0001F313' + i['name']
 
     rows = []
-    for i in equities:
+    for i in equities[:10]:
         rows.append([
             i['code'],
             parse_name(i),
