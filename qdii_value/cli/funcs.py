@@ -149,6 +149,7 @@ def get_table(conf, equities, summary, reference):
     last_update_f = summary['last_update'].strftime('%Y-%m-%d %H:%M:%S')
     caption = '(报价截至 {}, 持仓截至 {})\n'.format(last_update_f, conf.data['last_update'])
     table = Table(title=conf.data['fund_name'], 
+                  title_style="",
                   caption=caption, caption_style='white', caption_justify='right',
                   box=box.ROUNDED, show_footer=True)
 

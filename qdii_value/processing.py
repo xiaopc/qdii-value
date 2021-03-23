@@ -88,6 +88,8 @@ def single_fetch(equity):
 
 
 def fetch(equities):
+    if len(equities) == 0:
+        return None, None
     d = divide_by_provider(equities)
     for provider in d:
         d[provider] = get_data_from_provider(*d[provider])
@@ -95,6 +97,8 @@ def fetch(equities):
 
 
 def fetch_history(equities, **kwargs):
+    if len(equities) == 0:
+        return None
     d = divide_by_provider(equities)
     s = []
     for provider in d:

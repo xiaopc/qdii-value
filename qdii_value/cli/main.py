@@ -76,6 +76,8 @@ class FinishAddState(State):
     def action(self):
         global FUND_ID, FUND_CONF, FUND_CONF_PATH
 
+        if len(FUND_CONF.data['equities']) == 0:
+            raise UserWarning("没有添加任何持仓")
         if inquirer.confirm(message='需要增加参考指数吗?'):
             FUND_CONF.data['reference'] = search_equity()
         ret = FUND_CONF.save(FUND_CONF_PATH.format(FUND_ID.translate(TRANS_TABLE)))
@@ -87,6 +89,8 @@ class ListingState(State):
     def action(self):
         global ARGS, FUND_ID, FUND_CONF, FUND_CONF_PATH
 
+        if len(FUND_CONF.data['equities']) == 0:
+            raise UserWarning("没有添加任何持仓")
         if ARGS.history:
             history_csv(FUND_ID.translate(TRANS_TABLE) + f'_{ARGS.history}d.csv', FUND_CONF, ARGS.history)
         elif ARGS.csv:

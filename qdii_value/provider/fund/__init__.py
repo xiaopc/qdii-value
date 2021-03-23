@@ -1,4 +1,4 @@
-from . import eastmoney, hsbc, csindex,bloomberg
+from . import eastmoney, hsbc, csindex, bloomberg
 
 FUND_PROVIDER = [
     {
