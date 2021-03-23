@@ -52,9 +52,9 @@ def realtime(ids):
             'time': datetime.fromtimestamp(int(i['last_timestamp']), tz=tz_sh)
         }
         if c['is_open'] is False and i['extended_hours_show_data'] != 'No':
-            c['after_hour_price'] = Decimal(i['extended_price'])
+            c['after_hour_price'] = Decimal(i['extended_price'].replace(',', ''))
             c['after_hour_percent'] = Decimal(i['extended_change_percent'][1:-2])
-            c['after_hour_change'] = Decimal(i['extended_change'])
+            c['after_hour_change'] = Decimal(i['extended_change'].replace(',', ''))
             c['after_hour_datetime'] = datetime.fromtimestamp(int(i['extended_shown_unixtime']))
         ret.append(c)
     return ret
