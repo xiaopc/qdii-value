@@ -19,6 +19,7 @@ def lists(fund_id):
     p = s.find(id=re.compile('panelTop10')).find(class_='ms_table')
     if p is None:
         return None
+    stock = s.find(id=re.compile('lbStockText')).string[:-1]
 
     def get_tr(tr):
         td = tr.find_all('td')
@@ -28,4 +29,9 @@ def lists(fund_id):
             'capital': td[2].string,
             'weight': td[3].string
         }
-    return {"fund_name": n, "last_update": d, "equities": list(map(get_tr, p.table.find_all('tr')))[1:]}
+    return {
+        "fund_name": n, 
+        "last_update": d, 
+        "equities": list(map(get_tr, p.table.find_all('tr')))[1:],
+        "equities_percent": stock
+    }

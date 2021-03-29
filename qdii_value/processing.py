@@ -45,7 +45,7 @@ def get_trade_day(dt):
     return datetime(dt.year, dt.month, dt.day, hour=TRADING_START_HOUR, minute=0, second=0, microsecond=0, tzinfo=tz_sh)
 
 
-def combine_summary(d):
+def combine_summary(d, equities_percent):
     now = datetime.now(tz=tz_sh)
     trade_today = get_trade_day(now)
     if now < trade_today:
@@ -76,9 +76,9 @@ def combine_summary(d):
     return equities, {
         'last_update': latest,
         'total_weight': total_w,
-        'total_percent': total_p,
+        'total_percent': total_p * equities_percent / 100,
         'today_weight': today_w,
-        'today_percent': today_p
+        'today_percent': today_p * equities_percent / 100
     }
 
 
@@ -87,13 +87,13 @@ def single_fetch(equity):
     return get_data_from_provider(d[equity['source']], [equity])[0]
 
 
-def fetch(equities):
+def fetch(equities, equities_percent = "100"):
     if len(equities) == 0:
         return None, None
     d = divide_by_provider(equities)
     for provider in d:
         d[provider] = get_data_from_provider(*d[provider])
-    return combine_summary(d)
+    return combine_summary(d, Decimal(equities_percent))
 
 
 def fetch_history(equities, **kwargs):

@@ -28,12 +28,6 @@ SEARCH_TYPES = {'11': "A 股", '12': "B 股", '13': "权证", '14': "期货", '1
 
 SEARCH_FIELDS = ['name', 'type', 'code', 'code_full', 'name_cn']
 
-SEARCH_TYPE_ID = {
-    '11': lambda p: p['code_full'],
-    '31': lambda p: 'hk' + p['code_full'],
-    '41': lambda p: 'gb_'
-}
-
 
 def search(kw, types=[]):
     results = []
@@ -67,6 +61,7 @@ CN_STATUS = {
 }
 
 REALTIME_FIELDS = {
+    # A 股
     '11': [('name', str), ('opening', Decimal), ('last_closing', Decimal),
            ('closing', Decimal), ('highest', Decimal), ('lowest', Decimal),
            ('buy', Decimal), ('sell', Decimal), ('volume', Decimal), ('deal', Decimal),
@@ -78,6 +73,7 @@ REALTIME_FIELDS = {
            ('sell5_v', Decimal), ('sell5_p', Decimal),
            ('date', str), ('time', str), ('status', CN_STATUS.get)
            ],
+    # 港股
     '31': [('name_en', str), ('name', str), ('opening', Decimal),
            ('last_closing', Decimal), ('highest', Decimal), ('lowest', Decimal),
            ('closing', Decimal), ('delta', Decimal), ('percent', Decimal),
@@ -85,6 +81,7 @@ REALTIME_FIELDS = {
            ('pe', Decimal), ('yield_w', Decimal), ('52w_high', Decimal),
            ('52w_low', Decimal), ('date', str), ('time', str)
            ],
+    # 美股
     '41': [('name', str), ('closing', Decimal), ('percent', Decimal), ('time', str),
            ('delta', Decimal), ('opening', Decimal), ('highest', Decimal),
            ('lowest', Decimal), ('52w_highest', Decimal), ('52w_lowest', Decimal), 
@@ -95,12 +92,23 @@ REALTIME_FIELDS = {
            ('after_hour_delta', Decimal), ('after_hour_datetime', str), ('datetime', str),
            ('last_closing', Decimal), ('after_hour_volume', Decimal)
            ],
+    # 外汇
     '71': [('time', str), ('', RET_N), ('', RET_N), ('last_closing', Decimal), ('', RET_N),
            ('opening', Decimal), ('highest', Decimal), ('lowest', Decimal), ('closing', Decimal),
            ('name', str), ('', RET_N), ('', RET_N), ('', RET_N), ('market_maker', str),
            ('', RET_N), ('', RET_N), ('', RET_N), ('date', str)
-           ]
+           ],
+    # 开放式基金估值 21
+    'fu': [('name', str), ('time', str), ('estimation', Decimal), ('net_worth', Decimal), 
+           ('net_accumulate', Decimal), ('increase_rate_5m', Decimal), ('percent', Decimal), 
+           ('date', str), 
+           ],
+    # QDII 基金 25（基础基金接口）
+    'f': [('name', str), ('net_worth', Decimal), ('net_accumulate', Decimal), ('last_net', Decimal),
+           ('date', str), ('volume', Decimal)
+           ],
 }
+# 港指
 REALTIME_FIELDS['33'] = REALTIME_FIELDS['31']
 
 
@@ -124,6 +132,14 @@ def parse_symbol_41(symbol):
 
 def parse_symbol_71(symbol): 
     return 'fx_s%s' % (symbol.lower())
+
+
+def parse_symbol_fu(symbol): 
+    return 'fu_%s' % (symbol.lower())
+
+
+def parse_symbol_f(symbol): 
+    return 'f_%s' % (symbol.lower())
 
 
 parse_symbol_33 = parse_symbol_31
@@ -235,6 +251,20 @@ def history(symbol, **kwargs):
     if typ == '31' or typ == '33':
         code = code.upper()
     return HISTORY_PROCESSER[typ](code, **kwargs)
+
+
+HISTORY_URL_FUND = 'http://stock.finance.sina.com.cn/fundInfo/api/openapi.php/CaihuiFundInfoService.getNav?symbol=%s&datefrom=%s&dateto=%s&page=1'
+
+
+def history_fund(fund_id, date_from, date_to):
+    q = HISTORY_URL_FUND % (fund_id, date_from.strftime('%Y-%m-%d'), date_to.strftime('%Y-%m-%d'))
+    rsp = requests.get(q)
+    if rsp.status_code != 200:
+        raise Exception('网络错误: ' + rsp.status_code)
+    rsp = rsp.json()
+    if rsp['result']['status']['code'] != 0:
+        raise Exception('Err code %s' % (rsp['result']['status']['code'], ))
+    return rsp['result']['data']['data']
 
 
 # +----------+

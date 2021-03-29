@@ -8,7 +8,8 @@ _data = {
     "last_update": None,
     "reference": None,
     "forex": None,
-    "equities": None
+    "equities": None,
+    "equities_percent": "100"
 }
 _equity = {
     "source": None,     # String,

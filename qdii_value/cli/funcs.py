@@ -139,7 +139,7 @@ def red_green(num, fmt):
 
 
 def fetch_data(conf):
-    equities, summary = processing.fetch(conf.data['equities'])
+    equities, summary = processing.fetch(conf.data['equities'], conf.data['equities_percent'])
     reference = processing.single_fetch(
         conf.data['reference']) if conf.data['reference'] else None
     return equities, summary, reference
