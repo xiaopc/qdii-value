@@ -39,5 +39,5 @@ def lists(fund_id):
         "fund_name": n,
         "last_update": d,
         "equities": list(map(get_tr, s.div.div.table.tbody.find_all('tr'))),
-        "equities_percent": str(stock + dr)
+        "equities_percent": str(round(stock + dr, 2))
     }

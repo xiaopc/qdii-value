@@ -98,6 +98,16 @@ REALTIME_FIELDS = {
            ('name', str), ('', RET_N), ('', RET_N), ('', RET_N), ('market_maker', str),
            ('', RET_N), ('', RET_N), ('', RET_N), ('date', str)
            ],
+    # 直盘外汇，代码无前缀
+    'fx': [('time', str), ('closing', Decimal), ('sell', Decimal), ('last_closing', Decimal), 
+           ('amplitude', Decimal), ('opening', Decimal), ('highest', Decimal), ('lowest', Decimal), 
+           ('buy', Decimal), ('name', str), ('date', str)
+          ],
+    # 中行牌价，前缀 h_RMB
+    'pj': [('name', str), ('exchange_buy', Decimal), ('cash_buy', Decimal), 
+           ('exchange_sell', Decimal), ('cash_sell', Decimal), ('parity', Decimal),('date', str), 
+           ('time', str)
+          ],
     # 开放式基金估值 21
     'fu': [('name', str), ('time', str), ('estimation', Decimal), ('net_worth', Decimal), 
            ('net_accumulate', Decimal), ('increase_rate_5m', Decimal), ('percent', Decimal), 
@@ -132,6 +142,14 @@ def parse_symbol_41(symbol):
 
 def parse_symbol_71(symbol): 
     return 'fx_s%s' % (symbol.lower())
+
+
+def parse_symbol_fx(symbol): 
+    return symbol.upper()
+
+
+def parse_symbol_pj(symbol): 
+    return 'h_RMB%s' % (symbol.upper())
 
 
 def parse_symbol_fu(symbol): 
@@ -268,6 +286,30 @@ def history_fund(fund_id, date_from, date_to):
 
 
 # +----------+
+#    others
+# +----------+
+BANK_FOREX_URL = 'http://vip.stock.finance.sina.com.cn/forex/api/openapi.php/ForexService.getBankForex'
+
+# 100x
+# currency: AUD BRL CAD CHF DKK EUR GBP HKD JPY KRW MOP MYR NOK NZD PHP RMB RUB SEK SGD THB TWD USD ZAR
+# bank: icbc boc abchina bankcomm ccb cmbchina cebbank spdb cib ecitic
+# return: mid_price xc_buy_price xh_buy_price xc_sell_price xh_sell_price
+def bank_forex(currency='USD', bank='boc'):
+    rsp = requests.get(BANK_FOREX_URL)
+    if rsp.status_code != 200:
+        raise Exception('网络错误: ' + rsp.status_code)
+    rsp = rsp.json()
+    if rsp['result']['status']['code'] != 0:
+        raise Exception('Err code %s' % (rsp['result']['status']['code'], ))
+    if currency not in rsp['result']['data']['bank'].keys():
+        raise Exception('Forex not found: ' + currency)
+    cur = list(filter(lambda b: b['bank'] == bank, rsp['result']['data']['bank'][currency]))
+    if len(cur) == 0:
+        raise Exception('Forex not found: ' + bank)
+    return cur[0]
+
+
+# +----------+
 #     test
 # +----------+
 def test():
@@ -278,9 +320,10 @@ def test():
     # print(search('usdcnh'))
 
     print(realtime('31#00358', '11#sz000002', '41#bili', '71#usdcnh'))
+    print(realtime('71#usdcny', 'fx#USDCNY', 'pj#USD'))
     print(history('11#sh688111'))
     print(history('71#usdcnh'))
-
+    print(bank_forex())
 
 if __name__ == '__main__':
     test()
