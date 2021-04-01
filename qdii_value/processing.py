@@ -51,7 +51,7 @@ def combine_summary(d, equities_percent):
     if now < trade_today:
         trade_today -= timedelta(days=1)
 
-    equities = list(chain(*d.values()))
+    equities = list(filter(lambda e: 'change_percent' in e.keys(), chain(*d.values())))
     latest = max([e['time'] for e in equities])
     last_day = get_trade_day(latest) - timedelta(days=3 if latest.weekday() == 0 else 1)
     for e in equities:
