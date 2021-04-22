@@ -23,8 +23,13 @@ def lists(fund_id):
     r1 = requests.get(__url_zcpz.format(str(fund_id)), headers=headers)
     s1 = BeautifulSoup(r1.content.decode('utf8'), features='lxml')
     l1 = s1.find(class_='tzxq').tbody.tr.find_all('td')
-    stock = float(0 if '-' in l1[1].string else l1[1].string[:-1])
-    dr = float(0 if '-' in l1[4].string else l1[4].string[:-1])
+    get_item = lambda i: float(0 if '-' in l1[i].string else l1[i].string[:-1])
+    stock, dr = get_item(1), get_item(4)
+    bond, cash = get_item(2), get_item(3)
+    if stock + dr > 50:
+        percents = stock + dr
+    else:
+        percents = 100 - bond - cash
 
     def get_tr(tr):
         td = tr.find_all('td')
@@ -39,5 +44,5 @@ def lists(fund_id):
         "fund_name": n,
         "last_update": d,
         "equities": list(map(get_tr, s.div.div.table.tbody.find_all('tr'))),
-        "equities_percent": str(round(stock + dr, 2))
+        "equities_percent": str(round(percents, 2))
     }
