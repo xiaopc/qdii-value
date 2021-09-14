@@ -36,6 +36,8 @@ def search(kw, types=[]):
     for line in raw:
         data = line.split(',')
         r = dict(zip(SEARCH_FIELDS, data))
+        if r['name'] == '':
+            continue
         r['code_full'] = r['type'] + '#' + r['code_full']
         r['type'] = SEARCH_TYPES.get(r['type'])
         results.append(r)

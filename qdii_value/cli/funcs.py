@@ -80,7 +80,8 @@ def search_equity(default_query=None):
             try:
                 search_res = CUR_EQ_PROVIDER['object'].search(query)
             except:
-                print('网络错误.')
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print('错误: ', exc_value)
                 continue
             if search_res is None or len(search_res) == 0:
                 print('未搜索到结果.')
