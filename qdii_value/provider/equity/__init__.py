@@ -1,4 +1,4 @@
-from . import investing_interface, sina_interface, yahootw_interface
+from . import investing_interface, sina_interface, yahootw_interface, gfinance_interface
 
 EQUITY_PROVIDER = [
     {
@@ -16,9 +16,15 @@ EQUITY_PROVIDER = [
         'name': '雅虎奇摩（台/美）',
         'object': yahootw_interface
     },
+    {
+        'id': 'gfinance',
+        'name': 'Google Finance',
+        'object': gfinance_interface
+    },
 ]
 
 
 def set_equity_proxy(proxy):
     investing_interface.set_proxy(proxy)
     yahootw_interface.set_proxy(proxy)
+    gfinance_interface.set_proxy(proxy)

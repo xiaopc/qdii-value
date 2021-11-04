@@ -19,7 +19,7 @@
 
 1. 通过抓取 eastmoney/hsbc/bloomberg 上基金最近的持仓报告，获取持仓前 x 股票代码
 
-2. 在 investing/新浪财经 上查询每只股票当前行情
+2. 在 Investing/新浪财经/雅虎奇摩/Google Finance 上查询每只股票当前行情
 
 新浪财经支持 A/H/美股，延迟低；investing 支持的市场范围广
 
