@@ -14,7 +14,7 @@ timeout = 10.
 def __get(url, get_data=True):
     rsp = __session.get(__base_path.format(url), headers=headers, proxies=proxies, timeout=timeout)
     if rsp.status_code != 200:
-        raise Exception('网络错误: ' + rsp.status_code)
+        raise Exception('网络错误: {}'.format(rsp.status_code))
     return rsp.json()
 
 
