@@ -6,6 +6,11 @@ from functools import partial
 from decimal import Decimal
 import os
 import json
+from datetime import datetime
+from dateutil import tz
+
+
+tz_sh = tz.gettz('Asia/Shanghai')
 
 
 def RET_N(a): 
@@ -84,7 +89,7 @@ REALTIME_FIELDS = {
            ('52w_low', Decimal), ('date', str), ('time', str)
            ],
     # 美股
-    '41': [('name', str), ('closing', Decimal), ('percent', Decimal), ('time', str),
+    '41': [('name', str), ('closing', Decimal), ('percent', Decimal), ('', RET_N),
            ('delta', Decimal), ('opening', Decimal), ('highest', Decimal),
            ('lowest', Decimal), ('52w_highest', Decimal), ('52w_lowest', Decimal), 
            ('volume', Decimal), ('avg_vol', Decimal), ('total_share', Decimal), 
@@ -92,7 +97,8 @@ REALTIME_FIELDS = {
            ('dividend', str), ('income', str), ('shares', Decimal), ('', RET_N),
            ('after_hour_price', Decimal), ('after_hour_percent', Decimal),
            ('after_hour_delta', Decimal), ('after_hour_datetime', str), ('datetime', str),
-           ('last_closing', Decimal), ('after_hour_volume', Decimal)
+           ('last_closing', Decimal), ('after_hour_volume', Decimal), ('', RET_N),
+           ('year', str)
            ],
     # 外汇
     '71': [('time', str), ('', RET_N), ('', RET_N), ('last_closing', Decimal), ('', RET_N),
@@ -212,7 +218,7 @@ def history_cnhk(url, code, limit=21):
         compressed = requests.get(url.format(code)).text.split('\n')[0].split('\"')[1]
         ret = json.loads(decompress(compressed))
         return [{
-            'date': i['date'],
+            'date': datetime.fromtimestamp(int(i['date'] // 1000), tz=tz_sh).strftime('%Y-%m-%d'),
             'open': TO_FIX_2(i['open']),
             'high': TO_FIX_2(i['high']),
             'low': TO_FIX_2(i['low']),

@@ -1,13 +1,17 @@
 import os
+from os.path import dirname, join
 from setuptools import setup
 
 with open(os.path.join(os.path.dirname(__file__), 'requirements.txt')) as f:
     lines = [line.strip() for line in f]
     requires = [line for line in lines if line and not line.startswith('#')]
 
+with open(join(dirname(__file__), 'VERSION'), 'rb') as f:
+    version = f.read().decode('utf8').strip()
+
 setup(
     name='qdii_value',
-    version='0.3.38',
+    version=version,
     description='计算 QDII 基金估值',
     classifiers=[
         'Development Status :: 4 - Beta',

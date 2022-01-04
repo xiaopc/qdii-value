@@ -32,11 +32,11 @@ def realtime(ids):
                 'volume': i['volume'] if 'volume' in i.keys() else None,
             }
             if 'datetime' in i.keys():
-                c['time'] = dateparser.parse(i['datetime']).astimezone(
+                c['time'] = dateparser.parse(f"{i['year']} {i['datetime']}").astimezone(
                     tz=timezone(DATEPARSER_SETTINGS['TIMEZONE']))
             else:
                 c['time'] = dateparser.parse(
-                    i['date'] + ' ' + i['time'], settings=DATEPARSER_SETTINGS)
+                    f"{i['date']} {i['time']}", settings=DATEPARSER_SETTINGS)
             if (c['last'] == 0):
                 c['change'] = 0
                 c['change_percent'] = 0
@@ -44,8 +44,8 @@ def realtime(ids):
                 c['change_percent'] = i['percent']
             else:
                 c['change_percent'] = c['change'] / i['last_closing'] * 100
-            ago = dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
-            c['time'] = c['time'].replace(year=ago.year)  # temp fix for new year
+            # ago = dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
+            # c['time'] = c['time'].replace(year=ago.year)  # temp fix for new year
             c['is_open'] = c['time'] > dateparser.parse('5 minutes ago', settings=DATEPARSER_SETTINGS)
             if not c['is_open'] and 'after_hour_percent' in i.keys():
                 c['after_hour_price'] = i['after_hour_price']
