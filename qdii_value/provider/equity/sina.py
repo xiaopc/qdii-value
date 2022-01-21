@@ -11,6 +11,11 @@ from dateutil import tz
 
 
 tz_sh = tz.gettz('Asia/Shanghai')
+__session = requests.Session()
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+    'Referer': 'https://finance.sina.com.cn/',
+}
 
 
 def RET_N(a): 
@@ -36,8 +41,7 @@ SEARCH_FIELDS = ['name', 'type', 'code', 'code_full', 'name_cn']
 
 def search(kw, types=[]):
     results = []
-    raw = requests.get(SEARCH_URL % (','.join(types), kw)
-                       ).text.split('"')[1].split(';')
+    raw = __session.get(SEARCH_URL % (','.join(types), kw), headers=headers).text.split('"')[1].split(';')
     for line in raw:
         data = line.split(',')
         r = dict(zip(SEARCH_FIELDS, data))
@@ -131,7 +135,7 @@ REALTIME_FIELDS['33'] = REALTIME_FIELDS['31']
 
 
 def realtime_api(*symbols):
-    raw = requests.get(REALTIME_URL % (','.join(symbols),)).text
+    raw = __session.get(REALTIME_URL % (','.join(symbols),), headers=headers).text
     return [line.split('"')[1].split(',')
             for line in raw.split('\n') if line]
 
@@ -215,7 +219,7 @@ def history_cnhk(url, code, limit=21):
             DECOMPRESSER_JS = js.read()
     with STPyV8.JSContext() as ctxt:
         decompress = ctxt.eval(DECOMPRESSER_JS)
-        compressed = requests.get(url.format(code)).text.split('\n')[0].split('\"')[1]
+        compressed = __session.get(url.format(code), headers=headers).text.split('\n')[0].split('\"')[1]
         ret = json.loads(decompress(compressed))
         return [{
             'date': datetime.fromtimestamp(int(i['date'] // 1000), tz=tz_sh).strftime('%Y-%m-%d'),
@@ -243,7 +247,7 @@ def US_DAILY_CONVERT(d, o, h, l, c, v, **kwargs):
 
 # 139 days
 def history_us(code, limit=21):
-    return [US_DAILY_CONVERT(**data) for data in requests.get(HISTORY_URL_US.format(code)).json()[-limit:]]
+    return [US_DAILY_CONVERT(**data) for data in __session.get(HISTORY_URL_US.format(code), headers=headers).json()[-limit:]]
 
 
 HISTORY_URL_FX = 'https://vip.stock.finance.sina.com.cn/forex/api/jsonp.php/%20/NewForexService.getDayKLine?symbol={}'
@@ -260,7 +264,7 @@ def FX_DAILY_CONVERT(d, o, l, h, c, *args):
 
 
 def history_fx(code, limit=21):
-    return [FX_DAILY_CONVERT(*data.split(',')) for data in requests.get(HISTORY_URL_FX.format(code)).text.split('\n')[1][3:-3].split('|')][-limit:]
+    return [FX_DAILY_CONVERT(*data.split(',')) for data in __session.get(HISTORY_URL_FX.format(code), headers=headers).text.split('\n')[1][3:-3].split('|')][-limit:]
 
 
 HISTORY_PROCESSER = {
@@ -284,7 +288,7 @@ HISTORY_URL_FUND = 'http://stock.finance.sina.com.cn/fundInfo/api/openapi.php/Ca
 
 def history_fund(fund_id, date_from, date_to):
     q = HISTORY_URL_FUND % (fund_id, date_from.strftime('%Y-%m-%d'), date_to.strftime('%Y-%m-%d'))
-    rsp = requests.get(q)
+    rsp = __session.get(q, headers=headers)
     if rsp.status_code != 200:
         raise Exception('网络错误: ' + rsp.status_code)
     rsp = rsp.json()
@@ -303,7 +307,7 @@ BANK_FOREX_URL = 'http://vip.stock.finance.sina.com.cn/forex/api/openapi.php/For
 # bank: icbc boc abchina bankcomm ccb cmbchina cebbank spdb cib ecitic
 # return: mid_price xc_buy_price xh_buy_price xc_sell_price xh_sell_price
 def bank_forex(currency='USD', bank='boc'):
-    rsp = requests.get(BANK_FOREX_URL)
+    rsp = __session.get(BANK_FOREX_URL, headers=headers)
     if rsp.status_code != 200:
         raise Exception('网络错误: ' + rsp.status_code)
     rsp = rsp.json()
