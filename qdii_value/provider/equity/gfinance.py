@@ -14,7 +14,7 @@ timeout = 10.
 
 dump_json = lambda o: json.dumps(o, separators=(',', ':'))
 rand_num_str = lambda l: str(int(random.random() * (10 ** l)))
-
+out_array = lambda a: a if len(a) > 1 else out_array(a[0])
 
 def __batch_exec(envelopes):
     envs = envelopes if isinstance(envelopes, list) else [envelopes]
@@ -58,7 +58,7 @@ def parse_datetime(i):
         elif item is None:
             arr.append(0)
         elif isinstance(item, list):
-            arr.append(datetime.timezone(datetime.timedelta(seconds=item[0])))
+            arr.append(datetime.timezone(datetime.timedelta(seconds=0 if len(item) == 0 else item[0])))
     return datetime.datetime(*arr)
 
 
@@ -68,7 +68,7 @@ def parse_detail(i):
     return {
         'inner_id': i[0],
         'code': i[1][0],
-        'market': i[1][1],
+        'market': i[1][1] if len(i[1]) > 1 else None,
         'name': i[2],
         'currency': i[4],
         'trading': parse_trading(i[5]),
@@ -81,20 +81,22 @@ def parse_detail(i):
         'extended_trading': parse_trading(i[16]),
         'last_timestamp': i[17][0],
         'extended_timestamp': None if i[18] is None else i[18][0],
-        'start_trading_dt': parse_datetime(i[19][0][1]),
-        'end_trading_dt': parse_datetime(i[19][0][2]),
+        'start_trading_dt': None if i[19] is None else parse_datetime(i[19][0][1]),
+        'end_trading_dt': None if i[19] is None else parse_datetime(i[19][0][2]),
         'full_ticker': i[21]
     }
 
 
 def search(kw):
     rsp = __batch_exec({'id': 'mKsvE', 'data': [kw, [], True, True]})
-    return [parse_detail(e[0][3]) for e in rsp]
+    return [parse_detail(e[3]) for e in rsp[0]]
 
 
 def lists_detail(ids):
-    rsp = __batch_exec([{'id': 'xh8wxf', 'data': [[[None, i.split(':')]], True, False]} for i in ids])
-    return [parse_detail(e[0][0]) for e in rsp]
+    rsp = out_array(__batch_exec([{'id': 'xh8wxf', 'data': [[[None, i.split(':')]], True, False]} for i in ids]))
+    if isinstance(rsp[0], str):
+        rsp = [rsp]
+    return [parse_detail(out_array(e)) for e in rsp]
 
 
 def lists_simple(ids):

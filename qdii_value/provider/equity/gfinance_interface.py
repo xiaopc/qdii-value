@@ -39,7 +39,7 @@ def realtime(ids):
             'time': datetime.fromtimestamp(i['last_timestamp'], tz=tz_sh),
         }
         now = datetime.now(tz=tz_sh)
-        c['is_open'] = now < i['end_trading_dt'] and now > i['start_trading_dt']
+        c['is_open'] = i['end_trading_dt'] is None or (now < i['end_trading_dt'] and now > i['start_trading_dt'])
         if c['is_open'] is False and i['extended_trading'] is not None:
             c['after_hour_price'] = Decimal(i['extended_trading']['last'])
             c['after_hour_percent'] = Decimal(i['extended_trading']['change_percent'])

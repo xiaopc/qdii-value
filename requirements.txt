@@ -1,5 +1,6 @@
 beautifulsoup4>=4.9.1
 cjkwrap==2.2
+regex==2022.1.18
 dateparser==1.0.0
 demjson>=2.2.4
 python-dateutil>=2.8.1

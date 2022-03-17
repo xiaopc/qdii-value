@@ -17,11 +17,16 @@
 
 ## 介绍
 
-1. 通过抓取 eastmoney/hsbc/bloomberg 上基金最近的持仓报告，获取持仓前 x 股票代码
+1. 通过抓取 Eastmoney/HSBC HK/Bloomberg 上基金最近的持仓报告，获取持仓前 x 股票代码
 
 2. 在 Investing/新浪财经/雅虎奇摩/Google Finance 上查询每只股票当前行情
 
-新浪财经支持 A/H/美股，延迟低；investing 支持的市场范围广
+> 注意：
+> 1. Investing 已屏蔽非大陆 IP 使用国内版接口，在海外部署可使用 Google Finance 数据源；
+> 2. 雅虎以及除日本外各分站已屏蔽大陆 IP（返回 HTTP 4xx）；
+> 3. Bloomberg 极易遇反爬
+
+新浪财经支持 A/H/美股，延迟低；Investing 支持的市场范围广
 
 可作为 package 调用，demo: [telegram @ono_rin_bot](https://t.me/ono_rin_bot)
 
