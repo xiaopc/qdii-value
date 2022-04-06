@@ -104,6 +104,11 @@ REALTIME_FIELDS = {
            ('last_closing', Decimal), ('after_hour_volume', Decimal), ('', RET_N),
            ('year', str)
            ],
+    # 外盘期货，前缀 hf_
+    '86': [('closing', Decimal), ('', RET_N), ('buy', Decimal), ('sell', Decimal), ('high', Decimal), 
+            ('low', Decimal), ('time', str), ('last_closing', Decimal), ('opening', Decimal), 
+            ('volume', Decimal), ('', RET_N), ('', RET_N), ('date', str), ('name', str)
+            ],
     # 外汇
     '71': [('time', str), ('', RET_N), ('', RET_N), ('last_closing', Decimal), ('', RET_N),
            ('opening', Decimal), ('highest', Decimal), ('lowest', Decimal), ('closing', Decimal),
@@ -150,6 +155,10 @@ def parse_symbol_31(symbol):
 
 def parse_symbol_41(symbol): 
     return 'gb_%s' % (symbol.lower())
+
+
+def parse_symbol_86(symbol): 
+    return 'hf_%s' % (symbol.upper())
 
 
 def parse_symbol_71(symbol): 

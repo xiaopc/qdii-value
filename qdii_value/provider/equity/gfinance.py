@@ -89,7 +89,7 @@ def parse_detail(i):
 
 def search(kw):
     rsp = __batch_exec({'id': 'mKsvE', 'data': [kw, [], True, True]})
-    return [parse_detail(e[3]) for e in rsp[0]]
+    return [parse_detail(e[3]) for e in rsp[0]] if len(rsp) > 0 else []
 
 
 def lists_detail(ids):

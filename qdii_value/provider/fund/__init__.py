@@ -1,4 +1,4 @@
-from . import eastmoney, hsbc, csindex, bloomberg
+from . import eastmoney, hsbc, csindex, msci, bloomberg
 
 FUND_PROVIDER = [
     {
@@ -15,6 +15,11 @@ FUND_PROVIDER = [
         'id': 'csindex',
         'name': '中证指数',
         'object': csindex
+    },
+    {
+        'id': 'msci',
+        'name': 'MSCI 指数',
+        'object': msci
     },
     {
         'id': 'bloomberg',
