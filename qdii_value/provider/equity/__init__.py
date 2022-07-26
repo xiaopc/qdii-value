@@ -1,15 +1,20 @@
-from . import investing_interface, sina_interface, yahootw_interface, gfinance_interface
+from . import investing_interface, sina_interface, yahootw_interface, gfinance_interface, msn_interface
 
 EQUITY_PROVIDER = [
+    {
+        'id': 'sina',
+        'name': '新浪财经（A/H/美）',
+        'object': sina_interface
+    },
     {
         'id': 'investing',
         'name': '英为财情',
         'object': investing_interface
     },
     {
-        'id': 'sina',
-        'name': '新浪财经（A/H/美）',
-        'object': sina_interface
+        'id': 'msn',
+        'name': '微软 MSN 财经',
+        'object': msn_interface
     },
     {
         'id': 'yahootw',

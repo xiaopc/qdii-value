@@ -1,6 +1,5 @@
 import requests
 from urllib.parse import quote
-import time
 
 __base_path = 'https://tw.stock.yahoo.com/_td-stock/api/resource/{}'
 __session = requests.Session()
