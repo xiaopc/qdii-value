@@ -47,7 +47,7 @@ def search(kw, types=[]):
         r = dict(zip(SEARCH_FIELDS, data))
         if r['name'] == '' or 'name_cn' not in r:
             continue
-        r['code_full'] = r['type'] + '#' + r['code_full']
+        r['code_full'] = r['type'] + '#' + r['code_full'].replace(',', '$')
         r['type'] = SEARCH_TYPES.get(r['type'])
         results.append(r)
     return results

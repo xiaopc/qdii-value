@@ -8,7 +8,7 @@ from dateutil import tz
 from .funcs import *
 
 ARGS = None
-FUND_ID, FUND_CONF = None, None
+FUND_ID, FUND_CONF, OLD_FUND_CONF = None, None, None
 FUND_CONF_PATH = '{}.json'
 TRANS_TABLE = ''.maketrans(string.punctuation, '_' * len(string.punctuation))
 
@@ -32,7 +32,7 @@ class GetConfigState(State):
 
 class FindFundState(State):
     def action(self):
-        global ARGS, FUND_ID, FUND_CONF, FUND_CONF_PATH
+        global ARGS, FUND_ID, FUND_CONF, OLD_FUND_CONF, FUND_CONF_PATH
 
         print('正在获取 {} 持仓信息...'.format(FUND_ID))
         if ARGS.update and FUND_CONF and FUND_CONF.data['fund_source']:
@@ -48,15 +48,38 @@ class FindFundState(State):
                 return ListingState()
             elif ARGS.update and FUND_CONF:
                 print(f'发现 {FUND_ID} 发布新持仓, 开始更新.')
+            OLD_FUND_CONF = FUND_CONF
             FUND_CONF = create_conf(ret, FUND_ID)
             FUND_CONF.data["fund_source"] = provider['id']
             print('{} ({})'.format(FUND_CONF.data["fund_name"], FUND_CONF.data["_id"]))
             if FUND_CONF.data["last_update"]:
                 print('持仓截至: ' + FUND_CONF.data["last_update"])
-            get_equity_list(FUND_CONF)
-            return FinishAddState()
+            return UpdateEquityState()
         else:
             return None
+
+class UpdateEquityState(State):
+    def action(self):
+        global FUND_CONF, OLD_FUND_CONF
+        for item in FUND_CONF.data['equities']:
+            print('\n代码: {}  名称：{}  权重: {}'.format(item['code'], item['name'], item['weight']))
+            placeholder = item['code'].split('.')[0].split(':')[0] if item['code'] else None
+            exist_item = list(filter(lambda i: i['code'] == placeholder, OLD_FUND_CONF.data['equities'])) if OLD_FUND_CONF is not None else []
+            if len(exist_item) > 0 and inquirer.confirm(message='之前的匹配: {}({})，使用吗?'.format(exist_item[0]['name'], exist_item[0]['code'])):
+                item.update({
+                    'source': exist_item[0]['source'],
+                    'source_id': exist_item[0]['source_id'],
+                    'name': exist_item[0]['name'],
+                    'code': exist_item[0]['code']
+                })
+                clear_line()
+                continue
+            ret = search_equity(placeholder if placeholder else item['name'])
+            if ret is None:
+                continue
+            item.update(ret)
+        FUND_CONF.data['equities'] = list(filter(lambda e: 'source' in e.keys(), FUND_CONF.data['equities']))
+        return FinishAddState()
 
 
 class CustomFundState(State):

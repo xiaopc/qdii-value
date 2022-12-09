@@ -97,18 +97,6 @@ def search_equity(default_query=None):
     return {'source': CUR_EQ_PROVIDER['id'], 'source_id': data['source_id'], 'name': data['name'], 'code': data['code']}
 
 
-def get_equity_list(conf):
-    for item in conf.data['equities']:
-        print('代码: {}  名称：{}  权重: {}'.format(
-            item['code'], item['name'], item['weight']))
-        ret = search_equity(item['code'].split('.')[0].split(':')[0] if item['code'] else item['name'])
-        if ret is None:
-            continue
-        item.update(ret)
-    conf.data['equities'] = list(
-        filter(lambda e: 'source' in e.keys(), conf.data['equities']))
-
-
 def custom_equities():
     equities = []
     print('添加持仓信息：')

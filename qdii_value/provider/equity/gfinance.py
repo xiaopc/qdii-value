@@ -63,7 +63,7 @@ def parse_datetime(i):
 
 
 def parse_detail(i):
-    if i is None:
+    if i is None or i[4] is None:
         return None
     return {
         'inner_id': i[0],
@@ -89,7 +89,8 @@ def parse_detail(i):
 
 def search(kw):
     rsp = __batch_exec({'id': 'mKsvE', 'data': [kw, [], True, True]})
-    return [parse_detail(e[3]) for e in rsp[0]] if len(rsp) > 0 else []
+    list = [parse_detail(e[3]) for e in rsp[0]] if len(rsp) > 0 else []
+    return filter(lambda i: i is not None, list)
 
 
 def lists_detail(ids):
