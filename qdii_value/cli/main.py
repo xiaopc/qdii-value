@@ -64,7 +64,7 @@ class UpdateEquityState(State):
         for item in FUND_CONF.data['equities']:
             print('\n代码: {}  名称：{}  权重: {}'.format(item['code'], item['name'], item['weight']))
             placeholder = item['code'].split('.')[0].split(':')[0] if item['code'] else None
-            exist_item = list(filter(lambda i: i['code'] == placeholder, OLD_FUND_CONF.data['equities'])) if OLD_FUND_CONF is not None else []
+            exist_item = list(filter(lambda i: i['code'] == placeholder or i['name'] == item['name'], OLD_FUND_CONF.data['equities'])) if OLD_FUND_CONF is not None else []
             if len(exist_item) > 0 and inquirer.confirm(message='之前的匹配: {}({})，使用吗?'.format(exist_item[0]['name'], exist_item[0]['code'])):
                 item.update({
                     'source': exist_item[0]['source'],
@@ -97,11 +97,13 @@ class CustomFundState(State):
 
 class FinishAddState(State):
     def action(self):
-        global FUND_ID, FUND_CONF, FUND_CONF_PATH
+        global FUND_ID, FUND_CONF, OLD_FUND_CONF, FUND_CONF_PATH
 
         if len(FUND_CONF.data['equities']) == 0:
             raise UserWarning("没有添加任何持仓")
-        if inquirer.confirm(message='需要增加参考指数吗?'):
+        if OLD_FUND_CONF.data['reference'] and inquirer.confirm(message='保留原参考指数吗?'):
+            FUND_CONF.data['reference'] = OLD_FUND_CONF.data['reference']
+        elif inquirer.confirm(message='需要增加参考指数吗?'):
             FUND_CONF.data['reference'] = search_equity()
         ret = FUND_CONF.save(FUND_CONF_PATH.format(FUND_ID.translate(TRANS_TABLE)))
         print(f'配置已保存至 {ret}, 更新持仓表可添加 --update 参数.')
