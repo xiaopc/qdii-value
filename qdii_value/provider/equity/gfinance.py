@@ -63,7 +63,7 @@ def parse_datetime(i):
 
 
 def parse_detail(i):
-    if i is None or i[4] is None:
+    if i is None or len(i) < 5 or i[4] is None:
         return None
     return {
         'inner_id': i[0],

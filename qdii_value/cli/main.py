@@ -101,7 +101,7 @@ class FinishAddState(State):
 
         if len(FUND_CONF.data['equities']) == 0:
             raise UserWarning("没有添加任何持仓")
-        if OLD_FUND_CONF.data['reference'] and inquirer.confirm(message='保留原参考指数吗?'):
+        if OLD_FUND_CONF is not None and OLD_FUND_CONF.data['reference'] and inquirer.confirm(message='保留原参考指数吗?'):
             FUND_CONF.data['reference'] = OLD_FUND_CONF.data['reference']
         elif inquirer.confirm(message='需要增加参考指数吗?'):
             FUND_CONF.data['reference'] = search_equity()

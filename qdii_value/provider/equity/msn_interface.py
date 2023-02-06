@@ -34,6 +34,7 @@ def realtime(ids):
     res = msn.lists(ids)
     if res is None or len(res) == 0:
         return None
+    res = res if len(res) > 1 else [res]
     return [{
         'source_id': i[0]['instrumentId'],
         'source_name': i[0]['localizedAttributes']['zh-cn']['displayName'] if 'zh-cn' in i[0]['localizedAttributes'].keys() else i[0]['displayName'],
