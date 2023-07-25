@@ -13,8 +13,10 @@ from dateutil import tz
 tz_sh = tz.gettz('Asia/Shanghai')
 __session = requests.Session()
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
     'Referer': 'https://finance.sina.com.cn/',
+    'Accept': '*/*',
+    'Accept-Language': 'zh-CN,zh;q=0.9'
 }
 
 

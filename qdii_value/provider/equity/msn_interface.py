@@ -1,16 +1,18 @@
 from . import msn
 from decimal import Decimal
+import dateparser
 from datetime import datetime, timedelta
 from dateutil import tz
 
 
 tz_sh = tz.gettz('Asia/Shanghai')
+DATEPARSER_SETTINGS = {'TIMEZONE': 'Asia/Shanghai',
+                       'RETURN_AS_TIMEZONE_AWARE': True}
 TYPE_MAP = {'ST': '股票', 'FO': '基金', 'FE': 'ETF', 'XI': '指数'}
 
 
-def parse_utc_str(str):
-    UTC_FORMAT = "%Y-%m-%dT%H:%M:%S"
-    return (datetime.strptime(str.split('.')[0], UTC_FORMAT) + timedelta(hours=8)).replace(tzinfo=tz_sh)
+def parse_utc_str(string):
+    return dateparser.parse(string, settings=DATEPARSER_SETTINGS)
 
 
 def search(kw, _type=None):
@@ -45,3 +47,22 @@ def realtime(ids):
         'is_open': (parse_utc_str(i[0]['timeLastUpdated']) + timedelta(minutes=5)) > datetime.now(tz_sh),
         'time': parse_utc_str(i[0]['timeLastTraded'])
     } for i in res]
+
+
+def history(_id, limit=21):
+    data = msn.history(_id)[0]['series']
+    resp = [{
+        'date': parse_utc_str(ts),
+        'open': data['openPrices'][idx], 
+        'close': data['prices'][idx],
+        'high': data['pricesHigh'][idx],
+        'low': data['pricesLow'][idx],
+        'volume': data['volumes'][idx],
+    } for idx, ts in enumerate(data['timeStamps'])]
+    for idx, i in enumerate(resp):
+        if idx == 0:
+            continue
+        i['change'] = Decimal(i['close']) - Decimal(resp[idx - 1]['close'])
+        i['change_percent'] = Decimal(i['change']) / Decimal(i['close'])
+    return resp[-limit:]
+

@@ -55,6 +55,6 @@ def history(_id, limit=21):
         'close': i['trading']['last'],
         'change': i['trading']['change'],
         'change_percent': i['trading']['change_percent'],
-        'volume': i[volume],
+        'volume': i['volume'],
     } for i in gfinance.history(_id, 3)]
     return resp[-limit:]

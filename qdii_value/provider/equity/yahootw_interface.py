@@ -36,9 +36,9 @@ def realtime(ids):
     return [{
         'source_id': i['symbol'],
         'source_name': i['symbolName'],
-        'last': Decimal(i['price']),
-        'change': Decimal(i['change']),
-        'change_percent': Decimal(i['changePercent'][:-1]),
+        'last': Decimal(i['price']) if i['price'] != '-' else Decimal(0),
+        'change': Decimal(i['change']) if i['price'] != '-' else Decimal(0),
+        'change_percent': Decimal(i['changePercent'][:-1]) if i['price'] != '-' else Decimal(0),
         'volume': Decimal(i['volume']) if 'volume' in i.keys() else None,
         'is_open': i['marketStatus'] == 'open',
         'time': (datetime.strptime(i['regularMarketTime'], UTC_FORMAT) + timedelta(hours=8)).replace(tzinfo=tz_sh)

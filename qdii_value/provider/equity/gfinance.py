@@ -120,4 +120,4 @@ def history(_id, _range):
         'datetime': parse_datetime(i[0]),
         'trading': parse_trading(i[1]),
         'volume': i[2]
-    } for i in rsp[0][3][0][1]]
+    } for i in out_array(rsp)[3][0][1]]
