@@ -1,4 +1,5 @@
 from . import msn
+import json
 from decimal import Decimal
 import dateparser
 from datetime import datetime, timedelta
@@ -25,7 +26,7 @@ def search(kw, _type=None):
             'code': i['FullInstrument'].split('.')[2] if len(i['FullInstrument'].split('.')) > 2 else i['FullInstrument'],
             'name': i['OS0LN'],
             'type': TYPE_MAP['FO'] if i['OS010'] == 'FO' else '{} - {}'.format(TYPE_MAP[i['OS010']], i['AC040'])
-        } for i in res
+        } for i in map(lambda j: json.loads(j), res)
     ]
 
 

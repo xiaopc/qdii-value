@@ -21,10 +21,10 @@ def __get(action, ids, param=''):
 
 
 def search(kw):
-    rsp = __session.get('https://finance-services.msn.com/Market.svc/MTAutocomplete?count=250&q={}&locale=zh-cn'.format(kw), headers=headers, timeout=timeout)
+    rsp = __session.get('https://services.bingapis.com/contentservices-finance.csautosuggest/api/v1/Query?query={}&market=zh-cn&count=250'.format(kw), headers=headers, timeout=timeout)
     if rsp.status_code != 200:
         raise Exception('网络错误: {}'.format(rsp.status_code))
-    return rsp.json()['data']
+    return rsp.json()['data']['stocks']
 
 
 def lists(symbols):
