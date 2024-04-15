@@ -1,4 +1,4 @@
-import demjson
+import demjson3
 
 _data = {
     "_id": None,
@@ -28,7 +28,7 @@ class Config:
         # import
         if obj:
             if isinstance(obj, str):
-                obj = demjson.decode(obj)
+                obj = demjson3.decode(obj)
             # update
             if isinstance(obj, list) or "version" not in obj.keys():
                 raise Exception("配置文件版本过低，请删除后重试.")
@@ -40,5 +40,5 @@ class Config:
 
     def save(self, path):
         with open(path, 'w') as f:
-            f.write(demjson.encode(self.data))
+            f.write(demjson3.encode(self.data))
         return path

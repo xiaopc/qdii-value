@@ -40,11 +40,11 @@ def realtime(ids):
     res = res if len(res) > 1 else [res]
     return [{
         'source_id': i[0]['instrumentId'],
-        'source_name': i[0]['localizedAttributes']['zh-cn']['displayName'] if 'zh-cn' in i[0]['localizedAttributes'].keys() else i[0]['displayName'],
+        'source_name': getattr(getattr(i[0], 'localizedAttributes', None), 'zh-cn', i[0])['displayName'],
         'last': i[0]['price'],
         'change': i[0]['priceChange'],
         'change_percent': i[0]['priceChangePercent'],
-        'volume': i[0]['accumulatedVolume'] if 'accumulatedVolume' in i[0].keys() else None,
+        'volume': getattr(i[0], 'accumulatedVolume', None),
         'is_open': (parse_utc_str(i[0]['timeLastUpdated']) + timedelta(minutes=5)) > datetime.now(tz_sh),
         'time': parse_utc_str(i[0]['timeLastTraded'])
     } for i in res]

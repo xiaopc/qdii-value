@@ -1,6 +1,6 @@
 import random
 import requests
-import demjson
+import demjson3
 from bs4 import BeautifulSoup
 
 __url = 'http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code={}&topline=50&year=&month=&rt=' + \
@@ -13,7 +13,7 @@ headers = {
 
 def lists(fund_id):
     r = requests.get(__url.format(str(fund_id)), headers=headers)
-    j = demjson.decode(r.content.decode('utf8').split('=', 1)[1][:-1])
+    j = demjson3.decode(r.content.decode('utf8').split('=', 1)[1][:-1])
     if j['content'] == "":
         return None
     s = BeautifulSoup(j['content'], features='lxml')
@@ -24,7 +24,7 @@ def lists(fund_id):
     s1 = BeautifulSoup(r1.content.decode('utf8'), features='lxml')
     l1 = s1.find(class_='tzxq').tbody.tr.find_all('td')
     get_item = lambda i: float(0 if '-' in l1[i].string else l1[i].string[:-1])
-    stock, dr = get_item(1), get_item(4)
+    stock, dr = get_item(1), get_item(4) if len(l1) > 5 else 0
     bond, cash = get_item(2), get_item(3)
     if stock + dr > 50:
         percents = stock + dr
