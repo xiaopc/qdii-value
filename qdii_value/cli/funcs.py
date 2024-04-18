@@ -123,6 +123,29 @@ def remove_col_suffix(table, col, suffix):
             row[col] = row[col][:-len(suffix)]
 
 
+def strQ2B(ustring):
+    rstring = ""
+    for uchar in ustring:
+        inside_code=ord(uchar)
+        if inside_code == 12288:
+            inside_code = 32 
+        elif (inside_code >= 65281 and inside_code <= 65374):
+            inside_code -= 65248
+
+        rstring += chr(inside_code)
+    return rstring
+
+
+def remove_suffix_words(s, suffixes):
+    words = s.split(' ')
+    ret_words = []
+    for w in words:
+        if w in suffixes:
+            return ' '.join(ret_words)
+        ret_words.append(w)
+    return ' '.join(ret_words)
+
+
 def red_green(num, fmt):
     if num > 0:
         return '[bright_red]' + fmt.format(num) + '[/bright_red]'

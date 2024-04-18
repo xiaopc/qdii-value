@@ -62,9 +62,15 @@ class UpdateEquityState(State):
     def action(self):
         global FUND_CONF, OLD_FUND_CONF
         for item in FUND_CONF.data['equities']:
-            print('\n代码: {}  名称：{}  权重: {}'.format(item['code'], item['name'], item['weight']))
-            placeholder = item['code'].split('.')[0].split(':')[0] if item['code'] else None
-            exist_item = list(filter(lambda i: i['code'] == placeholder or i['name'] == item['name'], OLD_FUND_CONF.data['equities'])) if OLD_FUND_CONF is not None else []
+            key_text = {'code': '代码', 'name': '名称', 'industry': '行业', 'location': '地区', 'capital':'市值', 'weight': '权重'}
+            keys = [x for x in key_text.keys() if x in item.keys()]
+            print('\n' + '  '.join(list(map(lambda k: key_text[k] + ': ' + str(item[k]), keys))))
+            short_code = item['code'].split('.')[0].split(':')[0] if 'code' in item.keys() else None
+            name_splits = ['COMPANY', 'CORPORATION', 'LIMITED', 'CO.', 'CO', 'LTD', 'INC', 'ORD']
+            short_name = strQ2B(remove_suffix_words(item['name'], name_splits))
+            exist_item = []
+            if OLD_FUND_CONF is not None:
+                exist_item = list(filter(lambda i: i['code'] == short_code or i['name'] == short_name, OLD_FUND_CONF.data['equities']))
             if len(exist_item) > 0 and inquirer.confirm(message='之前的匹配: {}({})，使用吗?'.format(exist_item[0]['name'], exist_item[0]['code'])):
                 item.update({
                     'source': exist_item[0]['source'],
@@ -74,7 +80,7 @@ class UpdateEquityState(State):
                 })
                 clear_line()
                 continue
-            ret = search_equity(placeholder if placeholder else item['name'])
+            ret = search_equity(short_code or short_name)
             if ret is None:
                 continue
             item.update(ret)
