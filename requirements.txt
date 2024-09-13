@@ -3,7 +3,7 @@ cjkwrap==2.2
 dateparser==1.0.0
 demjson3>=3.0.0
 python-dateutil>=2.8.1
-inquirer==2.7.0
+inquirer==3.4.0
 lxml>=4.6.1
 pytz>=2018.9
 requests>=2.21.0
