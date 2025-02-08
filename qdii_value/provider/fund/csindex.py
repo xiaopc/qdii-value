@@ -5,17 +5,19 @@ import re
 
 __url_basic = 'https://www.csindex.com.cn/csindex-home/indexInfo/index-basic-info/{}'
 __url_top = 'https://www.csindex.com.cn/csindex-home/index/weight/top10/{}'
-__url_xls = 'https://csi-web-dev.oss-cn-shanghai-finance-1-pub.aliyuncs.com/static/html/csindex/public/uploads/file/autofile/closeweight/{}closeweight.xls'
+__url_xls = 'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/{}closeweight.xls'
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 }
 
 
 def get_json(url):
     rsp = requests.get(url, headers=headers)
-    if r.status_code != 200:
+    if rsp.status_code != 200:
         return None
     rsp = rsp.json()
+    print(rsp['code'])
     if rsp['code'] != '200':
         return None
     return rsp['data']

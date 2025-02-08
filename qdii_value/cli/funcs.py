@@ -61,6 +61,7 @@ def get_fund(_id, provider):
             return ret
         print(f"在「{provider['name']}」中找不到基金信息.")
     except Exception as e:
+        #Console().print_exception(show_locals=True)
         print(f'查询时出现故障: {e}')
     return None
 
@@ -94,7 +95,7 @@ def search_equity(default_query=None):
             options.append(('重新搜索', None))
             data = inquirer.list_input('上下键选择对应的项目', choices=options, default=0, render=INQUIRER_RENDER)
             [clear_line() for o in range(len(options) + 1)]
-    return {'source': CUR_EQ_PROVIDER['id'], 'source_id': data['source_id'], 'name': data['name'], 'code': data['code']}
+    return {'source': CUR_EQ_PROVIDER['id'], 'source_id': data['source_id'], 'name': strQ2B(data['name']), 'code': data['code']}
 
 
 def custom_equities():
